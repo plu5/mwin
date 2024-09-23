@@ -1,6 +1,7 @@
 mwin.aps
 x64
 x86
+Debug
 .vs
 *.filters
 *.user
