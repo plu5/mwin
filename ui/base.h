@@ -1,3 +1,5 @@
+#include <optional>
+
 class Window {
 public:
     HINSTANCE hinst;
@@ -16,7 +18,9 @@ protected:
 
 template<typename T>
 std::unique_ptr<T> create_window
-(std::wstring title, std::wstring class_name, HINSTANCE hinst, int show) {
+(std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
+ std::optional<int> x={}, std::optional<int> y={},
+ std::optional<int> w={}, std::optional<int> h={}) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst, show));
 
@@ -42,8 +46,10 @@ Last error: " + std::to_wstring(GetLastError());
     }
 
     HWND hwnd = CreateWindowW
-        (instance->class_name.data(), instance->title.data(), WS_OVERLAPPEDWINDOW,
-         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+        (instance->class_name.data(), instance->title.data(),
+         WS_OVERLAPPEDWINDOW,
+         x.value_or(CW_USEDEFAULT), y.value_or(CW_USEDEFAULT),
+         w.value_or(CW_USEDEFAULT), h.value_or(CW_USEDEFAULT),
          nullptr, nullptr, hinst, instance.get());
     if (!hwnd) {
         std::wstring wstrMessage = L"create_window: CreateWindowW failed.\n\
