@@ -1,6 +1,4 @@
 #include "mwin.h"
-#include <string>
-#include <memory>
 #include "ui/base.h"
 #include "ui/main_window.h"
 #include "utility/safe_resources.h"
@@ -11,7 +9,8 @@ int APIENTRY wWinMain
 (_In_ HINSTANCE hinst, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int show) {
     auto window = create_window<MainWindow>
         (load_wstr_resource(hinst, IDS_APP_TITLE),
-         load_wstr_resource(hinst, IDC_MWIN), hinst, show, {}, {}, 400, 400);
+         load_wstr_resource(hinst, IDC_MWIN),
+         hinst, show);
 
     // "If the function terminates before entering the message loop, it should
     // return zero."

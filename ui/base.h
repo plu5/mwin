@@ -1,4 +1,8 @@
-#include <optional>
+#pragma once
+
+#include "mwin.h"
+#include "core/coords.h"
+#include <Windows.h>
 
 class Window {
 public:
@@ -19,8 +23,7 @@ protected:
 template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
- std::optional<int> x={}, std::optional<int> y={},
- std::optional<int> w={}, std::optional<int> h={}) {
+ WndCoordinates* geometry=nullptr) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst, show));
 
@@ -45,11 +48,14 @@ Last error: " + std::to_wstring(GetLastError());
         return nullptr;
     }
 
+    int x = CW_USEDEFAULT, y = CW_USEDEFAULT,
+        w = CW_USEDEFAULT, h = CW_USEDEFAULT;
+    if (geometry) geometry->unpack(x, y, w, h);
+
     HWND hwnd = CreateWindowW
         (instance->class_name.data(), instance->title.data(),
          WS_OVERLAPPEDWINDOW,
-         x.value_or(CW_USEDEFAULT), y.value_or(CW_USEDEFAULT),
-         w.value_or(CW_USEDEFAULT), h.value_or(CW_USEDEFAULT),
+         x, y, w, h,
          nullptr, nullptr, hinst, instance.get());
     if (!hwnd) {
         std::wstring wstrMessage = L"create_window: CreateWindowW failed.\n\
@@ -59,36 +65,5 @@ Last error: " + std::to_wstring(GetLastError());
     }
     instance->hwnd = hwnd;
 
-    ShowWindow(hwnd, show);
-    UpdateWindow(hwnd);
     return instance;
-}
-
-LRESULT CALLBACK Window::s_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-    Window* self;
-    if (msg == WM_NCCREATE) {
-        auto lpcs = reinterpret_cast<LPCREATESTRUCT>(lp);
-        self = reinterpret_cast<Window*>(lpcs->lpCreateParams);
-        self->hwnd = hwnd;
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
-    } else {
-        self = reinterpret_cast<Window*>(GetWindowLongPtr
-                                         (hwnd, GWLP_USERDATA));
-    }
-    if (self) {
-        return self->proc(msg, wp, lp);
-    } else {
-        return DefWindowProc(hwnd, msg, wp, lp);
-    }
-}
-
-LRESULT Window::proc(UINT msg, WPARAM wp, LPARAM lp) {
-    LRESULT lres;
-    switch (msg) {
-    case WM_NCDESTROY:
-        lres = DefWindowProc(hwnd, msg, wp, lp);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-        return lres;
-    }
-    return DefWindowProc(hwnd, msg, wp, lp);
 }
