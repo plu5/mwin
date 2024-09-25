@@ -1,12 +1,17 @@
-#include "mwin.h"
+#include "Windows.h"
+#include "resource.h"
 #include "ui/base.h"
 #include "ui/main_window.h"
 #include "utility/safe_resources.h"
-
-const WCHAR program_name[] = L"mwin";
+#include "utility/console_output_support.h"
+#include "core/cli.h"
+#include "plog/Log.h"
 
 int APIENTRY wWinMain
 (_In_ HINSTANCE hinst, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int show) {
+    auto con_support = ConsoleOutputSupport();
+    cli::setup(__argc, __wargv, con_support);
+
     auto window = create_window<MainWindow>
         (load_wstr_resource(hinst, IDS_APP_TITLE),
          load_wstr_resource(hinst, IDC_MWIN),
@@ -26,5 +31,6 @@ int APIENTRY wWinMain
         }
     }
 
+    LOG_INFO << ID::name << " quit";
     return (int)msg.wParam;
 }

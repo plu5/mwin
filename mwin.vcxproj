@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\dependencies\plog\include;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\dependencies\plog\include;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,7 +109,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\dependencies\plog\include;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,7 +125,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\dependencies\plog\include;.\dependencies\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,25 +135,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="core\cli.h" />
     <ClInclude Include="core\config.h" />
     <ClInclude Include="core\coords.h" />
     <ClInclude Include="core\save.h" />
-    <ClInclude Include="mwin.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ui\base.h" />
     <ClInclude Include="ui\main_window.h" />
+    <ClInclude Include="utility\console_output_support.h" />
     <ClInclude Include="utility\exe_path.h" />
     <ClInclude Include="utility\safe_resources.h" />
+    <ClInclude Include="utility\string_concat.h" />
     <ClInclude Include="utility\string_conversion.h" />
+    <ClInclude Include="utility\string_transformations.h" />
+    <ClInclude Include="utility\vector_join.h" />
+    <ClInclude Include="utility\word_wrap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\cli.cpp" />
     <ClCompile Include="core\config.cpp" />
     <ClCompile Include="core\save.cpp" />
     <ClCompile Include="mwin.cpp" />
     <ClCompile Include="ui\base.cpp" />
     <ClCompile Include="ui\main_window.cpp" />
+    <ClCompile Include="utility\console_output_support.cpp" />
     <ClCompile Include="utility\exe_path.cpp" />
     <ClCompile Include="utility\string_conversion.cpp" />
+    <ClCompile Include="utility\string_transformations.cpp" />
+    <ClCompile Include="utility\word_wrap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="mwin.rc" />

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "mwin.h"
+#include "constants.h"
+#include "resource.h"
 #include "core/coords.h"
 #include <Windows.h>
 
@@ -44,7 +45,7 @@ std::unique_ptr<T> create_window
     if (RegisterClassExW(&wcex) == 0) {
         std::wstring wstrMessage = L"create_window: RegisterClassExW failed.\n\
 Last error: " + std::to_wstring(GetLastError());
-        MessageBoxW(nullptr, wstrMessage.c_str(), program_name, MB_ICONERROR);
+        MessageBoxW(nullptr, wstrMessage.c_str(), ID::wname, MB_ICONERROR);
         return nullptr;
     }
 
@@ -60,7 +61,7 @@ Last error: " + std::to_wstring(GetLastError());
     if (!hwnd) {
         std::wstring wstrMessage = L"create_window: CreateWindowW failed.\n\
 Last error: " + std::to_wstring(GetLastError());
-        MessageBoxW(nullptr, wstrMessage.c_str(), program_name, MB_ICONERROR);
+        MessageBoxW(nullptr, wstrMessage.c_str(), ID::wname, MB_ICONERROR);
         return nullptr;
     }
     instance->hwnd = hwnd;
