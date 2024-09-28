@@ -14,6 +14,7 @@ struct WndCoordinates {
         w_ = w;
         h_ = h;
     }
+    void by_monitor(size_t i);
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WndCoordinates, x, y, w, h)

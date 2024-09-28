@@ -82,6 +82,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,6 +101,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,6 +116,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,6 +135,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -139,30 +143,41 @@
     <ClInclude Include="core\cli.h" />
     <ClInclude Include="core\config.h" />
     <ClInclude Include="core\coords.h" />
+    <ClInclude Include="core\rules.h" />
     <ClInclude Include="core\save.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ui\base.h" />
     <ClInclude Include="ui\main_window.h" />
+    <ClInclude Include="ui\rules_list.h" />
     <ClInclude Include="utility\console_output_support.h" />
     <ClInclude Include="utility\exe_path.h" />
+    <ClInclude Include="utility\monitors.h" />
     <ClInclude Include="utility\safe_resources.h" />
     <ClInclude Include="utility\string_concat.h" />
     <ClInclude Include="utility\string_conversion.h" />
     <ClInclude Include="utility\string_transformations.h" />
+    <ClInclude Include="utility\uid.h" />
     <ClInclude Include="utility\vector_join.h" />
+    <ClInclude Include="utility\win32_casts.h" />
     <ClInclude Include="utility\word_wrap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\cli.cpp" />
     <ClCompile Include="core\config.cpp" />
+    <ClCompile Include="core\coords.cpp" />
+    <ClCompile Include="core\rules.cpp" />
     <ClCompile Include="core\save.cpp" />
     <ClCompile Include="mwin.cpp" />
     <ClCompile Include="ui\base.cpp" />
     <ClCompile Include="ui\main_window.cpp" />
+    <ClCompile Include="ui\rules_list.cpp" />
     <ClCompile Include="utility\console_output_support.cpp" />
     <ClCompile Include="utility\exe_path.cpp" />
+    <ClCompile Include="utility\monitors.cpp" />
     <ClCompile Include="utility\string_conversion.cpp" />
     <ClCompile Include="utility\string_transformations.cpp" />
+    <ClCompile Include="utility\uid.cpp" />
+    <ClCompile Include="utility\win32_casts.cpp" />
     <ClCompile Include="utility\word_wrap.cpp" />
   </ItemGroup>
   <ItemGroup>

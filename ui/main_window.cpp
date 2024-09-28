@@ -1,4 +1,6 @@
 #include "ui/main_window.h"
+#include "commctrl.h"
+#include <string>
 
 LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
@@ -6,7 +8,11 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
         initialise();
         break;
 
+    case WM_SIZE:
+        rules_list.adjust_size();
+
     case WM_COMMAND: {
+        rules_list.command(wp, lp);
         int wm_id = LOWORD(wp);
         // Parse the menu selections
         switch (wm_id) {
@@ -73,6 +79,7 @@ void MainWindow::save_geometry() {
 void MainWindow::initialise() {
     config.load();
     update_geometry();
+    rules_list = RulesList(hwnd, hinst);
 }
 
 void MainWindow::finalise() {
