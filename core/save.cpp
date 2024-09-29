@@ -1,6 +1,5 @@
 #include "save.h"
-#include <fstream>
-#include <filesystem>
+#include <fstream> // std::ifstream
 #include "nlohmann/json.hpp"
 #include "plog/Log.h"
 
@@ -88,4 +87,30 @@ void save_config(Config &config) {
 Saving dconfig to: " << path.c_str();
         save_json_file(path, config);
     }
+}
+
+void load_rules(RulesModel &rules, std::filesystem::path user_dir) {
+    std::ifstream f;
+    auto path = user_dir / std::filesystem::path(save_rel_path);
+    auto cpath = path.c_str();
+    if (load_file(cpath, f)) {
+        LOG_DEBUG << "Read save: " << cpath;
+        try {
+            rules.rules = json::parse(f);
+        } catch (const json::exception& e) {
+            parse_failure(e, "saved rules", path.string());
+            return;
+        }
+        LOG_INFO << "Loaded " << rules.size() << " rules";        
+    } else {
+        LOG_DEBUG << "Save path " << cpath << " not found.\n\
+This is normal if the save file has not been created yet.";
+    }
+}
+
+void save_rules(RulesModel &rules, std::filesystem::path user_dir) {
+    auto path = user_dir / std::filesystem::path(save_rel_path);
+    save_json_file(path, rules.rules);
+    LOG_INFO << "Saved " << rules.size() << " rules";
+    LOG_DEBUG << "in " << path.c_str();
 }

@@ -80,10 +80,12 @@ void MainWindow::initialise() {
     config.load();
     update_geometry();
     rules_list = RulesList(hwnd, hinst);
+    rules_list.load(config.user_dir);
 }
 
 void MainWindow::finalise() {
     if (config.save_geom_on_quit) save_geometry();
     // TODO(plu5): Only save if changed
     config.save();
+    rules_list.save(config.user_dir);
 }

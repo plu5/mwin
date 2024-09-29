@@ -1,8 +1,10 @@
 #include "ui/rules_list.h"
 #include <commctrl.h> // win32 listview
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
+#include <string> // std::wstring
 #include "utility/string_conversion.h" // string_to_wstring
 #include "utility/win32_casts.h" // hmenu_cast
+#include "core/save.h" // load_rules, save_rules
 
 HWND create_listview
 (std::wstring caption, int x, int y, int w, int h, int id,
@@ -39,10 +41,13 @@ void add_item(HWND hwnd, const std::string& text, size_t index) {
     ListView_InsertItem(hwnd, &item);
 }
 
+void RulesList::add_rule(const Rule& rule, size_t i) {
+    add_item(hwnd, rule.name, i);
+}
+
 void RulesList::add_rule() {
     const auto i = rules.size();
-    const auto& rule = rules.create_rule();
-    add_item(hwnd, rule.name, i);
+    add_rule(rules.create_rule(), i);
 }
 
 void RulesList::dup_rule() {
@@ -112,6 +117,29 @@ Size get_size(HWND hwnd, bool client=true) {
     return {rect.right - rect.left, rect.bottom - rect.top};
 }
 
+void RulesList::load(std::filesystem::path user_dir) {
+    load_rules(rules, user_dir);
+    if (rules.size() > 0) {
+        repopulate();
+        select_rule(0);
+    } else {
+        add_rule();
+    }
+}
+
+void RulesList::save(std::filesystem::path user_dir) {
+    save_rules(rules, user_dir);
+}
+
+void RulesList::repopulate() {
+    ListView_DeleteAllItems(hwnd);
+    int i = 0;
+    for (auto& rule : rules.rules) {
+        add_rule(rule, i);
+        i++;
+    }
+}
+
 RulesList::RulesList(HWND parent_hwnd, HINSTANCE hinst)
     : parent_hwnd(parent_hwnd), hinst(hinst) {
     hwnd = create_listview
@@ -129,8 +157,6 @@ RulesList::RulesList(HWND parent_hwnd, HINSTANCE hinst)
     del_btn = create_btn(L"-", 0, btn_size * 2, btn_size, btn_size,
                          4, parent_hwnd, hinst);
 
-    add_rule();
-    select_rule(0);
     SetFocus(hwnd);
 }
 

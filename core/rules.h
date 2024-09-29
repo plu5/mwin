@@ -14,6 +14,9 @@ struct Rule {
     size_t monitor = 1;
 };
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT
+(Rule, id, enabled, name, wnd_title, wnd_exe, coords, by_monitor, monitor)
+
 class RulesModel {
  public:
     std::vector<Rule> rules;
