@@ -25,6 +25,22 @@ HWND create_label
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
 }
 
+LRESULT CALLBACK edit_proc
+(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
+    switch (msg) {
+    case WM_CHAR:
+        if (wp == 1) { // Ctrl+A
+            Edit_SetSel(hwnd, 0, -1);
+        }
+        break;
+
+    case WM_NCDESTROY:
+        RemoveWindowSubclass(hwnd, edit_proc, uid);
+        break;
+    }
+    return DefSubclassProc(hwnd, msg, wp, lp);
+}
+
 void RuleDetails::initialise(HWND parent_hwnd_, HINSTANCE hinst_, int y_) {
     parent_hwnd = parent_hwnd_;
     hinst = hinst_;
@@ -37,6 +53,7 @@ void RuleDetails::initialise(HWND parent_hwnd_, HINSTANCE hinst_, int y_) {
         (L"", label_width + marg, y + marg,
          get_size(parent_hwnd).w - label_width - marg*2, 20, 2,
          parent_hwnd, hinst);
+    SetWindowSubclass(rule_name_edit, edit_proc, static_cast<UINT_PTR>(1), 0);
 }
 
 void RuleDetails::adjust_size() {
