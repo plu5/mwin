@@ -37,7 +37,7 @@ std::unique_ptr<T> create_window
     wcex.hInstance      = hinst;
     wcex.hIcon          = LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE+1);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance->class_name.data();
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));

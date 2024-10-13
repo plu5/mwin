@@ -1,6 +1,8 @@
 #include "ui/main_window.h"
-#include "commctrl.h"
+#include <commctrl.h>
 #include <string>
+#include "plog/Log.h"
+#include <windowsx.h> // Edit_GetSel, Edit_SetSel
 
 LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
@@ -10,25 +12,17 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_SIZE:
         rules_list.adjust_size();
-
-    case WM_COMMAND: {
-        rules_list.command(wp, lp);
-        int wm_id = LOWORD(wp);
-        // Parse the menu selections
-        switch (wm_id) {
-        case IDM_ABOUT:
-            DialogBox
-                (hinst, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, s_about_proc);
-            break;
-        case IDM_EXIT:
-            finalise();
-            DestroyWindow(hwnd);
-            break;
-        default:
-            return DefWindowProc(hwnd, msg, wp, lp);
-        }
+        rule_details.adjust_size();
         break;
-    }
+
+    case WM_COMMAND:
+        rules_list.command(wp, lp);
+        command(wp, lp);
+        break;
+
+    case WM_NOTIFY:
+        notify(lp);
+        break;
 
     case WM_CLOSE:
         finalise();
@@ -79,7 +73,8 @@ void MainWindow::save_geometry() {
 void MainWindow::initialise() {
     config.load();
     update_geometry();
-    rules_list = RulesList(hwnd, hinst);
+    rules_list.initialise(hwnd, hinst);
+    rule_details.initialise(hwnd, hinst, rules_list.height);
     rules_list.load(config.user_dir);
 }
 
@@ -88,4 +83,67 @@ void MainWindow::finalise() {
     // TODO(plu5): Only save if changed
     config.save();
     rules_list.save(config.user_dir);
+}
+
+void MainWindow::notify(LPARAM lp) {
+    auto* nmh = reinterpret_cast<NMHDR*>(lp);
+    switch(nmh->code) {
+    case LVN_ITEMCHANGED:
+        if (nmh->hwndFrom == rules_list.hwnd) {
+            auto* nml = reinterpret_cast<NMLISTVIEW*>(nmh);
+            if ((nml->uChanged & LVIF_STATE)) {
+                // selected rule change
+                if ((nml->uNewState & LVIS_SELECTED) and (nml->iItem != -1)) {
+                    rule_details.populate(rules_list.rules[nml->iItem]);
+                } else if (nml->uNewState == 0) { // deselected
+                    // Note(plu5): We end up here also when switching between
+                    // rules, which is not currently a problem as there is then
+                    // another message with the new selection state and
+                    // rule_details.populate gets called, but it may be
+                    // undesireable for this to be triggered between switches;
+                    // ideally should only be when no rule is selected
+                    rule_details.clear_and_disable();
+                }
+            }
+        }
+        break;
+    }
+}
+
+void MainWindow::parse_menu_selections(WORD id) {
+    switch (id) {
+    case IDM_ABOUT:
+        DialogBox
+            (hinst, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, s_about_proc);
+        break;
+    case IDM_EXIT:
+        finalise();
+        DestroyWindow(hwnd);
+        break;
+    }
+}
+
+void MainWindow::command(WPARAM wp, LPARAM lp) {
+    if (lp == 0 and HIWORD(wp) == 0) { // menu
+        parse_menu_selections(LOWORD(wp));
+    } else {
+        auto change = rule_details.command(wp, lp);
+        if (change.field != RuleField::none) { // rule details changes
+            auto* rule = rules_list.selected_rule();
+            if (rule) {
+                if (change.field == RuleField::name
+                      and rule->name != change.data.str) {
+                    rule->name = change.data.str;
+                    auto old_index = rules_list.selected_index();
+                    auto old_sel = rule_details.get_edit_field_sel(RuleField::name);
+                    rules_list.repopulate();
+                    rules_list.select_rule(old_index);
+                    rule_details.set_edit_field_sel(RuleField::name, old_sel);
+                }
+            } else {
+                LOG_ERROR << "Rule details change with no selected rule, which \
+should not be possible";
+            }
+        }
+    }
 }

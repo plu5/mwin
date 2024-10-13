@@ -12,8 +12,17 @@ std::string wstring_to_string(const std::wstring &wstr) {
     return res;
 }
 
-std::wstring string_to_wstring(const std::string &str)
-{
+std::string wchar_to_string(const wchar_t *wchr) {
+    if (not wchr) return std::string();
+    int size_needed = WideCharToMultiByte
+        (CP_UTF8, 0, wchr, -1, NULL, 0, NULL, NULL);
+    std::string res(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wchr, -1, &res[0],
+                        size_needed, NULL, NULL);
+    return res;
+}
+
+std::wstring string_to_wstring(const std::string &str) {
     if(str.empty()) return std::wstring();
     int size_needed = MultiByteToWideChar
         (CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);

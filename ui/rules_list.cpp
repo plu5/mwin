@@ -5,6 +5,7 @@
 #include "utility/string_conversion.h" // string_to_wstring
 #include "utility/win32_casts.h" // hmenu_cast
 #include "core/save.h" // load_rules, save_rules
+#include "utility/win32_geometry.h" // get_size
 
 HWND create_listview
 (std::wstring caption, int x, int y, int w, int h, int id,
@@ -30,24 +31,34 @@ int RulesList::selected_index() const {
     return ListView_GetNextItem(hwnd, -1, LVNI_SELECTED);
 }
 
-void add_item(HWND hwnd, const std::string& text, size_t index) {
+Rule* RulesList::selected_rule() { // can't be const
+    auto i = selected_index();
+    if (i == -1 or i >= rules.size()) return nullptr;
+    else return &rules[i];
+}
+
+void add_item(HWND hwnd, const std::string& text, size_t index,
+              bool select=false) {
     LVITEM item {};
     item.iItem = static_cast<int>(index);
-    item.mask = LVIF_TEXT | LVIF_STATE;
-    item.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-    item.state = LVIS_FOCUSED | LVIS_SELECTED;
+    item.mask = LVIF_TEXT;
+    if (select) {
+        item.mask = LVIF_TEXT | LVIF_STATE;
+        item.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
+        item.state = LVIS_FOCUSED | LVIS_SELECTED;
+    }
     auto name = string_to_wstring(text);
     item.pszText = name.data();
     ListView_InsertItem(hwnd, &item);
 }
 
-void RulesList::add_rule(const Rule& rule, size_t i) {
-    add_item(hwnd, rule.name, i);
+void RulesList::add_rule(const Rule& rule, size_t i, bool select) {
+    add_item(hwnd, rule.name, i, select);
 }
 
 void RulesList::add_rule() {
     const auto i = rules.size();
-    add_rule(rules.create_rule(), i);
+    add_rule(rules.create_rule(), i, true);
 }
 
 void RulesList::dup_rule() {
@@ -105,18 +116,6 @@ HWND create_btn
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
 }
 
-struct Size {
-    int w = 0;
-    int h = 0;
-};
-
-Size get_size(HWND hwnd, bool client=true) {
-    RECT rect {};
-    if (client) GetClientRect(hwnd, &rect);
-    else GetWindowRect(hwnd, &rect);
-    return {rect.right - rect.left, rect.bottom - rect.top};
-}
-
 void RulesList::load(std::filesystem::path user_dir) {
     load_rules(rules, user_dir);
     if (rules.size() > 0) {
@@ -135,16 +134,18 @@ void RulesList::repopulate() {
     ListView_DeleteAllItems(hwnd);
     int i = 0;
     for (auto& rule : rules.rules) {
-        add_rule(rule, i);
+        add_rule(rule, i, false);
         i++;
     }
 }
 
-RulesList::RulesList(HWND parent_hwnd, HINSTANCE hinst)
-    : parent_hwnd(parent_hwnd), hinst(hinst) {
+void RulesList::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
+    parent_hwnd = parent_hwnd_;
+    hinst = hinst_;
+
     hwnd = create_listview
         (L"Rules list", btn_size, 0,
-         get_size(parent_hwnd).w - btn_size, btn_size * 3,
+         get_size(parent_hwnd).w - btn_size, height,
          1, parent_hwnd, hinst);
     SetWindowSubclass(hwnd, listview_proc, static_cast<UINT_PTR>(1), 0);
     ListView_SetExtendedListViewStyle(hwnd, LVS_EX_ONECLICKACTIVATE);

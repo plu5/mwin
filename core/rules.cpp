@@ -1,5 +1,6 @@
 #include "core/rules.h"
 #include "utility/uid.h"
+#include "utility/string_concat.h"
 
 // Similar to Notepad++ nextUntitledNewNumber
 std::string RulesModel::next_untitled_name(std::string base, std::string sep) {
@@ -19,7 +20,7 @@ std::string RulesModel::next_untitled_name(std::string base, std::string sep) {
         }
         if (!number_available) {
             number++;
-            name = base + sep + std::to_string(number);
+            name = concat(base, sep, std::to_string(number));
         }
         if (!found) break;
     } while (!number_available);
@@ -50,11 +51,11 @@ size_t RulesModel::size() {
 }
 
 Rule& RulesModel::operator[](int index) {
-    return rules[index];
+    return rules.at(index);
 }
 
 const Rule& RulesModel::operator[](int index) const {
-    return rules[index];
+    return rules.at(index);
 }
 
 const Rule& RulesModel::by_id(const std::string& id) const {

@@ -149,6 +149,7 @@
     <ClInclude Include="ui\base.h" />
     <ClInclude Include="ui\main_window.h" />
     <ClInclude Include="ui\rules_list.h" />
+    <ClInclude Include="ui\rule_details.h" />
     <ClInclude Include="utility\console_output_support.h" />
     <ClInclude Include="utility\exe_path.h" />
     <ClInclude Include="utility\monitors.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="utility\uid.h" />
     <ClInclude Include="utility\vector_join.h" />
     <ClInclude Include="utility\win32_casts.h" />
+    <ClInclude Include="utility\win32_geometry.h" />
     <ClInclude Include="utility\word_wrap.h" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +173,7 @@
     <ClCompile Include="ui\base.cpp" />
     <ClCompile Include="ui\main_window.cpp" />
     <ClCompile Include="ui\rules_list.cpp" />
+    <ClCompile Include="ui\rule_details.cpp" />
     <ClCompile Include="utility\console_output_support.cpp" />
     <ClCompile Include="utility\exe_path.cpp" />
     <ClCompile Include="utility\monitors.cpp" />
@@ -178,6 +181,7 @@
     <ClCompile Include="utility\string_transformations.cpp" />
     <ClCompile Include="utility\uid.cpp" />
     <ClCompile Include="utility\win32_casts.cpp" />
+    <ClCompile Include="utility\win32_geometry.cpp" />
     <ClCompile Include="utility\word_wrap.cpp" />
   </ItemGroup>
   <ItemGroup>
