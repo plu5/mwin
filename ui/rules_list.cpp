@@ -1,7 +1,7 @@
 #include "ui/rules_list.h"
 #include <commctrl.h> // win32 listview
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
-#include <string> // std::wstring
+#include "plog/Log.h"
 #include "utility/string_conversion.h" // string_to_wstring
 #include "utility/win32_casts.h" // hmenu_cast
 #include "core/save.h" // load_rules, save_rules
@@ -177,5 +177,24 @@ void RulesList::command(WPARAM wp, LPARAM lp) {
         if (handle == add_btn) add_rule();
         else if (handle == dup_btn) dup_rule();
         else if (handle == del_btn) del_rule();
+    }
+}
+
+void RulesList::modify_selected_rule_name(const std::string& new_name) {
+    auto i = selected_index();
+    if (i == -1) {
+        LOG_ERROR << "No rule selected";
+        return;
+    }
+    auto& rule = rule_at(i);
+    if (rule.name != new_name) {
+        rule.name = new_name;
+        // Modify name of corresponding list view item
+        LVITEM item {};
+        item.iItem = i;
+        item.mask = LVIF_TEXT;
+        auto name = string_to_wstring(new_name);
+        item.pszText = name.data();
+        ListView_SetItem(hwnd, &item);
     }
 }

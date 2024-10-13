@@ -128,22 +128,7 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
         parse_menu_selections(LOWORD(wp));
     } else {
         auto change = rule_details.command(wp, lp);
-        if (change.field != RuleField::none) { // rule details changes
-            auto* rule = rules_list.selected_rule();
-            if (rule) {
-                if (change.field == RuleField::name
-                      and rule->name != change.data.str) {
-                    rule->name = change.data.str;
-                    auto old_index = rules_list.selected_index();
-                    auto old_sel = rule_details.get_edit_field_sel(RuleField::name);
-                    rules_list.repopulate();
-                    rules_list.select_rule(old_index);
-                    rule_details.set_edit_field_sel(RuleField::name, old_sel);
-                }
-            } else {
-                LOG_ERROR << "Rule details change with no selected rule, which \
-should not be possible";
-            }
-        }
+        if (change.field == RuleField::name)
+            rules_list.modify_selected_rule_name(change.data.str);
     }
 }

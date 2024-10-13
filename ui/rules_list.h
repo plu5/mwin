@@ -2,6 +2,7 @@
 
 #include <Windows.h> // HWND, HINSTANCE, WPARAM, LPARAM
 #include <filesystem> // std::filesystem::path
+#include <string> // std::string, std::wstring
 #include "core/rules.h" // Rule, RulesModel
 
 class RulesList {
