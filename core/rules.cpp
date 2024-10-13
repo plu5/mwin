@@ -37,6 +37,7 @@ Rule& RulesModel::create_rule() {
 
 Rule& RulesModel::duplicate_rule(int index) {
     Rule copied_rule = rules[index];
+    copied_rule.id = uid();
     copied_rule.name = next_untitled_name(copied_rule.name);
     rules.push_back(copied_rule);
     return rules[rules.size() - 1];
