@@ -1,6 +1,7 @@
 #include "ui/rules_list.h"
 #include <commctrl.h> // win32 listview
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
+#include <uxtheme.h> // SetWindowTheme
 #include "plog/Log.h"
 #include "utility/string_conversion.h" // string_to_wstring
 #include "utility/win32_casts.h" // hmenu_cast
@@ -113,11 +114,13 @@ LRESULT CALLBACK listview_proc
 
 HWND create_btn
 (std::wstring caption, int x, int y, int w, int h, int id,
- HWND parent, HINSTANCE hinst) {
-    return CreateWindow
+ HWND parent, HINSTANCE hinst, bool old_style=true) {
+    auto hwnd = CreateWindow
         (WC_BUTTON, caption.data(),
          WS_CHILD | WS_VISIBLE,
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
+    if (old_style) SetWindowTheme(hwnd, L" ", L" ");
+    return hwnd;
 }
 
 void RulesList::load(std::filesystem::path user_dir) {
