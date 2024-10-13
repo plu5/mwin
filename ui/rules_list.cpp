@@ -146,6 +146,13 @@ void RulesList::repopulate() {
     }
 }
 
+void darkmode_listview(HWND hwnd) {
+    SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL);
+    ListView_SetTextColor(hwnd, 0x00ffffff);
+    ListView_SetBkColor(hwnd, 0x001e1e1e);
+    ListView_SetTextBkColor(hwnd, 0x001e1e1e);
+}
+
 void RulesList::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
     parent_hwnd = parent_hwnd_;
     hinst = hinst_;
@@ -157,6 +164,7 @@ void RulesList::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
     SetWindowSubclass(hwnd, listview_proc, static_cast<UINT_PTR>(1), 0);
     ListView_SetExtendedListViewStyle(hwnd, LVS_EX_ONECLICKACTIVATE);
     ListView_SetIconSpacing(hwnd, 80, 20);
+    darkmode_listview(hwnd);
 
     add_btn = create_btn(L"+", 0, 0, btn_size, btn_size,
                          2, parent_hwnd, hinst);
