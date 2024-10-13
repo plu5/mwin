@@ -94,7 +94,7 @@ void MainWindow::notify(LPARAM lp) {
             if ((nml->uChanged & LVIF_STATE)) {
                 // selected rule change
                 if ((nml->uNewState & LVIS_SELECTED) and (nml->iItem != -1)) {
-                    rule_details.populate(rules_list.rules[nml->iItem]);
+                    rule_details.populate(rules_list.rule_at(nml->iItem));
                 } else if (nml->uNewState == 0) { // deselected
                     // Note(plu5): We end up here also when switching between
                     // rules, which is not currently a problem as there is then

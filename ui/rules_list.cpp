@@ -37,6 +37,10 @@ Rule* RulesList::selected_rule() { // can't be const
     else return &rules[i];
 }
 
+Rule& RulesList::rule_at(int i) {
+    return rules[i];
+}
+
 void add_item(HWND hwnd, const std::string& text, size_t index,
               bool select=false) {
     LVITEM item {};
