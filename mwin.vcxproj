@@ -161,6 +161,7 @@
     <ClInclude Include="utility\vector_join.h" />
     <ClInclude Include="utility\win32_casts.h" />
     <ClInclude Include="utility\win32_geometry.h" />
+    <ClInclude Include="utility\win32_painting.h" />
     <ClInclude Include="utility\word_wrap.h" />
   </ItemGroup>
   <ItemGroup>

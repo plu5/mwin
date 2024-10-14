@@ -24,7 +24,8 @@ protected:
 template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
- WndCoordinates* geometry=nullptr) {
+ WndCoordinates* geometry=nullptr,
+ HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1)) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst, show));
 
@@ -37,7 +38,7 @@ std::unique_ptr<T> create_window
     wcex.hInstance      = hinst;
     wcex.hIcon          = LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE+1);
+    wcex.hbrBackground  = background;
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance->class_name.data();
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
