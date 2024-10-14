@@ -2,6 +2,7 @@
 #include <string> // wstring
 #include <commctrl.h> // WC_EDIT
 #include <windowsx.h> // Edit_SetText, Edit_GetTextLength, Edit_GetText
+#include <regex> // regex_replace
 #include "plog/Log.h"
 #include "utility/win32_casts.h" // hmenu_cast
 #include "utility/win32_geometry.h" // get_size
@@ -25,12 +26,37 @@ HWND create_label
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
 }
 
+// NOTE(plu5): Maybe use GetWindowTextLength and GetWindowText directly instead
+std::string get_edit_text(HWND hwnd) {
+    std::wstring text;
+    text.resize(Edit_GetTextLength(hwnd));
+    Edit_GetText(hwnd, text.data(), text.capacity());
+    auto res = wstring_to_string(text);
+    return res;
+}
+
+const auto del_word_regex = std::regex("(\\w*[ ]?|[^ \\w]*[ ]?|[ ]*)$");
+
 LRESULT CALLBACK edit_proc
 (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
     switch (msg) {
     case WM_CHAR:
-        if (wp == 1) { // Ctrl+A
+        switch (wp) {
+        case 1: // Ctrl+A
             Edit_SetSel(hwnd, 0, -1);
+            break;
+        case 127: // Ctrl+Backspace
+            auto sel = Edit_GetSel(hwnd);
+            auto text = get_edit_text(hwnd);
+            auto pre_caret = text.substr(0, LOWORD(sel));
+            auto post_caret = text.substr(LOWORD(sel));
+            pre_caret = regex_replace(pre_caret, del_word_regex, "");
+            text = pre_caret + post_caret;
+            Edit_SetText(hwnd, string_to_wstring(text).data());
+            WORD sel_start = pre_caret.size();
+            WORD sel_end = sel_start + (HIWORD(sel) - LOWORD(sel));
+            Edit_SetSel(hwnd, sel_start, sel_end);
+            return 0; // suppress character
         }
         break;
 
@@ -82,15 +108,6 @@ void RuleDetails::clear_and_disable() {
     Edit_SetText(rule_name_edit, L"");
     Edit_Enable(rule_name_edit, false);
     enable_events();
-}
-
-// NOTE(plu5): Maybe use GetWindowTextLength and GetWindowText directly instead
-std::string get_edit_text(HWND hwnd) {
-    std::wstring text;
-    text.resize(Edit_GetTextLength(hwnd));
-    Edit_GetText(hwnd, text.data(), text.capacity());
-    auto res = wstring_to_string(text);
-    return res;
 }
 
 RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
