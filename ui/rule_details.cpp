@@ -37,6 +37,18 @@ std::string get_edit_text(HWND hwnd) {
 
 const auto del_word_regex = std::regex("(\\w*[ ]?|[^ \\w]*[ ]?|[ ]*)$");
 
+// Note(plu5): Edit_ReplaceSel macro makes the operation non-undoable whereas
+// sending the message yourself you can specify
+void edit_replace_sel(HWND hwnd, const std::string& text, BOOL undoable=TRUE) {
+    auto wtext = string_to_wstring(text);
+    SNDMSG(hwnd, EM_REPLACESEL, undoable,
+           reinterpret_cast<LPARAM>(wtext.data()));
+}
+
+void edit_del_sel(HWND hwnd, BOOL undoable=TRUE) {
+    SNDMSG(hwnd, EM_REPLACESEL, undoable, reinterpret_cast<LPARAM>(L""));
+}
+
 LRESULT CALLBACK edit_proc
 (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
     switch (msg) {
@@ -50,12 +62,16 @@ LRESULT CALLBACK edit_proc
             auto text = get_edit_text(hwnd);
             auto pre_caret = text.substr(0, LOWORD(sel));
             auto post_caret = text.substr(LOWORD(sel));
-            pre_caret = regex_replace(pre_caret, del_word_regex, "");
-            text = pre_caret + post_caret;
-            Edit_SetText(hwnd, string_to_wstring(text).data());
-            WORD sel_start = pre_caret.size();
-            WORD sel_end = sel_start + (HIWORD(sel) - LOWORD(sel));
-            Edit_SetSel(hwnd, sel_start, sel_end);
+            std::smatch match;
+            if (regex_search(pre_caret, match, del_word_regex)) {
+                auto match_start = match.position();
+                auto match_end = match_start + match.length();
+                Edit_SetSel(hwnd, match_start, match_end);
+                edit_del_sel(hwnd);
+                WORD sel_start = pre_caret.size() - match.length();
+                WORD sel_end = sel_start + (HIWORD(sel) - LOWORD(sel));
+                Edit_SetSel(hwnd, sel_start, sel_end);
+            }
             return 0; // suppress character
         }
         break;
