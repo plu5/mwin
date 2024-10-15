@@ -15,6 +15,7 @@ public:
     void save(std::filesystem::path user_dir);
     void command(WPARAM wp, LPARAM lp);
     void modify_selected_rule_name(const std::string& new_name);
+    void modify_selected_rule_commentary(const std::string& new_commentary);
     Rule& rule_at(int i);
 protected:
     HWND parent_hwnd = 0;

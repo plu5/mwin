@@ -213,3 +213,16 @@ void RulesList::modify_selected_rule_name(const std::string& new_name) {
         ListView_SetItem(hwnd, &item);
     }
 }
+
+void RulesList::modify_selected_rule_commentary
+(const std::string& new_commentary) {
+    auto i = selected_index();
+    if (i == -1) {
+        LOG_ERROR << "No rule selected";
+        return;
+    }
+    auto& rule = rule_at(i);
+    if (rule.commentary != new_commentary) {
+        rule.commentary = new_commentary;
+    }
+}

@@ -12,11 +12,13 @@ class Edit {
     std::string text();
     void resize_width(int w_);
     void paint(HDC hdc);
+    void clear_and_disable();
+    void populate(const std::string& text);
 private:
     int x = 0, y = 0, w = 0, h = 0;
     HWND parent = 0;
     HINSTANCE hinst = 0;
     std::string label;
     std::wstring wlabel;
-    int label_width = 80;
+    int label_width = 90;
 };

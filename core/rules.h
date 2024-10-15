@@ -7,6 +7,7 @@ struct Rule {
     std::string id;
     bool enabled = true;
     std::string name = "";
+    std::string commentary = "";
     std::string wnd_title = "";
     std::string wnd_exe = "";
     WndCoordinates coords;
@@ -15,7 +16,8 @@ struct Rule {
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT
-(Rule, id, enabled, name, wnd_title, wnd_exe, coords, by_monitor, monitor)
+(Rule, id, enabled, name, commentary, wnd_title, wnd_exe, coords, by_monitor,
+ monitor)
 
 class RulesModel {
  public:

@@ -107,3 +107,13 @@ void Edit::paint(HDC hdc) {
     SetTextColor(hdc, RGB(200, 200, 200));
     DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);
 }
+
+void Edit::clear_and_disable() {
+    Edit_SetText(hwnd, L"");
+    Edit_Enable(hwnd, false);
+}
+
+void Edit::populate(const std::string& text) {
+    Edit_Enable(hwnd, true);
+    Edit_SetText(hwnd, string_to_wstring(text).data());
+}

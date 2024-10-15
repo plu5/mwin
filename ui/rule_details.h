@@ -2,10 +2,11 @@
 
 #include <string> // std::string
 #include <Windows.h> // HWND, HINSTANCE, WPARAM, LPARAM, DWORD
+#include <vector>
 #include "core/rules.h" // Rule
 #include "ui/edit.h" // Edit
 
-enum class RuleField {none, name};
+enum class RuleField {none, name, commentary};
 
 struct RuleFieldData {
     std::string str;
@@ -27,6 +28,8 @@ public:
 protected:
     HWND parent_hwnd = 0;
     Edit rule_name_edit;
+    Edit commentary_edit;
+    std::vector<Edit*> edits = {&rule_name_edit, &commentary_edit};
     HINSTANCE hinst = 0;
     int y = 0;
     int marg = 5;
