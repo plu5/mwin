@@ -3,6 +3,7 @@
 #include <string> // std::string
 #include <Windows.h> // HWND, HINSTANCE, WPARAM, LPARAM, DWORD
 #include "core/rules.h" // Rule
+#include "ui/edit.h" // Edit
 
 enum class RuleField {none, name};
 
@@ -22,11 +23,9 @@ public:
     void populate(const Rule& rule);
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
-    DWORD get_edit_field_sel(RuleField edit);
-    void set_edit_field_sel(RuleField edit, DWORD sel);
 protected:
     HWND parent_hwnd = 0;
-    HWND rule_name_edit = 0;
+    Edit rule_name_edit;
     HINSTANCE hinst = 0;
     int y = 0;
     int marg = 5;
