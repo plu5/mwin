@@ -15,11 +15,11 @@ HWND create_edit
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
 }
 
-// NOTE(plu5): Maybe use GetWindowTextLength and GetWindowText directly instead
-std::string get_edit_text(HWND hwnd) {
-    std::wstring text;
-    text.resize(Edit_GetTextLength(hwnd));
-    Edit_GetText(hwnd, text.data(), static_cast<int>(text.capacity()));
+std::string get_text(HWND hwnd) {
+    auto length_with_terminator = GetWindowTextLength(hwnd) + 1;
+    std::wstring text(length_with_terminator, '\0');
+    auto length_copied = GetWindowText(hwnd, text.data(), length_with_terminator);
+    text.resize(length_copied); // get rid of excess \0
     auto res = wstring_to_string(text);
     return res;
 }
@@ -48,7 +48,7 @@ LRESULT CALLBACK edit_proc
             break;
         case 127: // Ctrl+Backspace
             auto sel = Edit_GetSel(hwnd);
-            auto text = get_edit_text(hwnd);
+            auto text = get_text(hwnd);
             auto pre_caret = text.substr(0, LOWORD(sel));
             auto post_caret = text.substr(LOWORD(sel));
             std::smatch match;
@@ -89,7 +89,7 @@ void Edit::initialise(HWND parent_, HINSTANCE hinst_,
 }
 
 std::string Edit::text() {
-    return get_edit_text(hwnd);
+    return get_text(hwnd);
 }
 
 void Edit::resize_width(int w_) {
