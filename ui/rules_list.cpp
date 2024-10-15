@@ -8,6 +8,8 @@
 #include "core/save.h" // load_rules, save_rules
 #include "utility/win32_geometry.h" // get_size
 
+const std::wstring empty_rule_name = L"[no name]";
+
 HWND create_listview
 (std::wstring caption, int x, int y, int w, int h, int id,
  HWND parent, HINSTANCE hinst,
@@ -52,7 +54,8 @@ void add_item(HWND hwnd, const std::string& text, size_t index,
         item.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
         item.state = LVIS_FOCUSED | LVIS_SELECTED;
     }
-    auto name = string_to_wstring(text);
+    auto name = text.empty() ?
+        empty_rule_name : string_to_wstring(text);
     item.pszText = name.data();
     ListView_InsertItem(hwnd, &item);
 }
@@ -204,7 +207,8 @@ void RulesList::modify_selected_rule_name(const std::string& new_name) {
         LVITEM item {};
         item.iItem = i;
         item.mask = LVIF_TEXT;
-        auto name = string_to_wstring(new_name);
+        auto name = new_name.empty() ?
+            empty_rule_name : string_to_wstring(new_name);
         item.pszText = name.data();
         ListView_SetItem(hwnd, &item);
     }
