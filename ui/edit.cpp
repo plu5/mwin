@@ -74,13 +74,36 @@ LRESULT CALLBACK edit_proc
 }
 
 void Edit::initialise(HWND parent_, HINSTANCE hinst_,
-                      int x, int y, int w, int h) {
+                      int x_, int y_, int w_, int h_, const std::string& label_) {
     hinst = hinst_;
     parent = parent_;
-    hwnd = create_edit(L"", x, y, w, h, -1, parent, hinst);
+    label = label_;
+    wlabel = string_to_wstring(label);
+    x = x_;
+    y = y_;
+    w = w_;
+    h = h_;
+    hwnd = create_edit(L"", x + label_width, y, w - label_width, h,
+                       -1, parent, hinst);
     SetWindowSubclass(hwnd, edit_proc, static_cast<UINT_PTR>(-1), 0);
 }
 
 std::string Edit::text() {
     return get_edit_text(hwnd);
+}
+
+void Edit::resize_width(int w_) {
+    w = w_;
+    SetWindowPos(hwnd, NULL, 0, 0, w_ - label_width, get_size(hwnd, false).h,
+                 SWP_NOMOVE);
+}
+
+void Edit::paint(HDC hdc) {
+    auto rect = get_rect(parent);
+    rect.top = y + 2;
+    rect.left = x;
+    rect.right = rect.left + label_width;
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc, RGB(200, 200, 200));
+    DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);
 }

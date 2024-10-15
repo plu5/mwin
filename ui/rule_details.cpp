@@ -11,14 +11,13 @@ void RuleDetails::initialise(HWND parent_hwnd_, HINSTANCE hinst_, int y_) {
     hinst = hinst_;
     y = y_;
 
-    rule_name_edit.initialise(parent_hwnd, hinst, marg, y + marg,
-                              get_size(parent_hwnd).w - marg*2, 20);
+    rule_name_edit.initialise
+        (parent_hwnd, hinst, marg, y + marg,
+         get_size(parent_hwnd).w - marg*2, 20, "Rule name:");
 }
 
 void RuleDetails::adjust_size() {
-    SetWindowPos(rule_name_edit.hwnd, NULL, 0, 0,
-                 get_size(parent_hwnd).w - marg*2,
-                 get_size(rule_name_edit.hwnd, false).h, SWP_NOMOVE);
+    rule_name_edit.resize_width(get_size(parent_hwnd).w - marg*2);
 }
 
 void RuleDetails::enable_events() {
@@ -51,4 +50,8 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
         }
     }
     return {};
+}
+
+void RuleDetails::paint(HDC hdc) {
+    rule_name_edit.paint(hdc);
 }

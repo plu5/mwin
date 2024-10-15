@@ -23,13 +23,13 @@ public:
     void populate(const Rule& rule);
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
+    void paint(HDC hdc);
 protected:
     HWND parent_hwnd = 0;
     Edit rule_name_edit;
     HINSTANCE hinst = 0;
     int y = 0;
     int marg = 5;
-    int label_width = 80;
     bool events_enabled = false;
     void enable_events();
     void disable_events();

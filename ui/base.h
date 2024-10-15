@@ -12,12 +12,14 @@ public:
     std::wstring title;
     std::wstring class_name;
     HWND hwnd = 0;
+    HBRUSH background;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 protected:
     Window
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show)
-        : title(title), class_name(class_name), hinst(hinst), show(show) {};
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
+     HBRUSH background) : title(title), class_name(class_name), hinst(hinst),
+                          show(show), background(background) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
 };
 
@@ -27,7 +29,7 @@ std::unique_ptr<T> create_window
  WndCoordinates* geometry=nullptr,
  HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1)) {
     auto instance = std::unique_ptr<T>
-        (new T(title, class_name, hinst, show));
+        (new T(title, class_name, hinst, show, background));
 
     WNDCLASSEXW wcex {};
     wcex.cbSize = sizeof(WNDCLASSEX);
