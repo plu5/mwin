@@ -8,6 +8,7 @@ struct WndCoordinates {
     int w = 0;
     int h = 0;
     WndCoordinates() {};
+    WndCoordinates(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {};
     inline void unpack(int& x_, int& y_, int& w_, int& h_) const {
         x_ = x;
         y_ = y;

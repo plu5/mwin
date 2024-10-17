@@ -25,10 +25,6 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
         notify(lp);
         break;
 
-    case WM_PAINT:
-        paint();
-        break;
-
     case WM_CLOSE:
         finalise();
         break;
@@ -76,11 +72,10 @@ void MainWindow::save_geometry() {
 }
 
 void MainWindow::initialise() {
-    setup_paint_buffers();
     config.load();
     update_geometry();
     rules_list.initialise(hwnd, hinst);
-    rule_details.initialise(hwnd, hinst, rules_list.height);
+    rule_details.initialise(hwnd, rules_list.height);
     rules_list.load(config.user_dir);
 }
 
@@ -140,26 +135,4 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
             rules_list.modify_selected_rule_commentary(change.data.str);
         }
     }
-}
-
-void MainWindow::setup_paint_buffers() {
-    hdc = GetDC(hwnd);
-    auto size = get_size(hwnd);
-    bmp.initialise(hdc, size.w, size.h);
-    dc2.initialise(hdc, hwnd);
-    hdc2 = dc2.hdc;
-    SelectObject(hdc2, bmp.hb);
-    ReleaseDC(hwnd, hdc);
-}
-
-void MainWindow::paint() {
-    PAINTSTRUCT ps;
-    auto size = get_size(hwnd);
-    FillRect(hdc2, &size.rect, background);
-
-    rule_details.paint(hdc2);
-
-    hdc = BeginPaint(hwnd, &ps);
-    BitBlt(hdc, 0, 0, size.w, size.h, hdc2, 0, 0, SRCCOPY);
-    EndPaint(hwnd, &ps);
 }

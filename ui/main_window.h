@@ -4,16 +4,16 @@
 #include "core/config.h" // Config
 #include "ui/rules_list.h" // RulesList
 #include "ui/rule_details.h" // RuleDetails
-#include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include <Windows.h> // HINSTANCE, HDC, HBITMAP, LRESULT, HWND, UINT, ...
 
 class MainWindow : public Window {
-public:
     using super = Window;
+public:
     MainWindow
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst,
      HBRUSH background)
-        : Window(title, class_name, hinst, show, background) {};
+        : Window(title, class_name, hinst, background),
+          rule_details(L"RuleDetails", L"RuleDetails", hinst, background) {};
 protected:
     Config config;
     RulesList rules_list;
@@ -28,11 +28,4 @@ protected:
     void notify(LPARAM lp);
     void parse_menu_selections(WORD id);
     void command(WPARAM wp, LPARAM lp);
-    // Painting double-buffering stuff
-    HDC hdc = 0;
-    HDC hdc2 = 0;
-    CompatDc dc2;
-    CompatBitmap bmp;
-    void setup_paint_buffers();
-    void paint();
 };

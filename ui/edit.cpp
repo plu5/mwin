@@ -3,7 +3,7 @@
 #include <windowsx.h> // Edit_SetText, Edit_GetTextLength, Edit_GetText
 #include <regex> // regex_replace
 #include "utility/string_conversion.h" // string_to_wstring, wstring_to_string
-#include "utility/win32_geometry.h" // get_size
+#include "utility/win32_geometry.h" // get_size, get_rect, get_relative_rect
 #include "utility/win32_casts.h" // hmenu_cast
 
 HWND create_edit
@@ -99,10 +99,12 @@ void Edit::resize_width(int w_) {
 }
 
 void Edit::paint(HDC hdc) {
-    auto rect = get_rect(parent);
-    rect.top = y + 2;
+    auto parent_rect = get_rect(parent);
+    auto rect = get_relative_rect(hwnd, parent);
+    if (rect.top + (rect.bottom - rect.top) < 0) return; // not in view
+    rect.top += 2; // gets the label text aligned with the edit text
     rect.left = x;
-    rect.right = rect.left + label_width;
+    rect.right = parent_rect.left + label_width;
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(200, 200, 200));
     DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);

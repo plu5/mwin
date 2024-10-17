@@ -8,29 +8,27 @@
 class Window {
 public:
     HINSTANCE hinst;
-    int show;
     std::wstring title;
     std::wstring class_name;
     HWND hwnd = 0;
     HBRUSH background;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
+    ~Window() {DestroyWindow(hwnd);}
 protected:
     Window
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
-     HBRUSH background) : title(title), class_name(class_name), hinst(hinst),
-                          show(show), background(background) {};
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst,
+     HBRUSH background) :
+        title(title), class_name(class_name), hinst(hinst),
+        background(background) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
 };
 
 template<typename T>
-std::unique_ptr<T> create_window
-(std::wstring title, std::wstring class_name, HINSTANCE hinst, int show,
+HWND create_window(T& instance, HINSTANCE hinst,
  WndCoordinates* geometry=nullptr,
- HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1)) {
-    auto instance = std::unique_ptr<T>
-        (new T(title, class_name, hinst, show, background));
-
+ HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1), int flags=WS_OVERLAPPEDWINDOW,
+ HWND parent=nullptr) {
     WNDCLASSEXW wcex {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -38,12 +36,12 @@ std::unique_ptr<T> create_window
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hinst;
-    wcex.hIcon          = LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.hIcon          = parent ? NULL : LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = background;
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MWIN);
-    wcex.lpszClassName  = instance->class_name.data();
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.lpszMenuName   = parent ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
+    wcex.lpszClassName  = instance.class_name.data();
+    wcex.hIconSm        = parent ? NULL : LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
 
     if (RegisterClassExW(&wcex) == 0) {
         std::wstring wstrMessage = L"create_window: RegisterClassExW failed.\n\
@@ -57,17 +55,30 @@ Last error: " + std::to_wstring(GetLastError());
     if (geometry) geometry->unpack(x, y, w, h);
 
     HWND hwnd = CreateWindowW
-        (instance->class_name.data(), instance->title.data(),
-         WS_OVERLAPPEDWINDOW,
+        (instance.class_name.data(), instance.title.data(),
+         flags,
          x, y, w, h,
-         nullptr, nullptr, hinst, instance.get());
+         parent, nullptr, hinst, &instance);
     if (!hwnd) {
         std::wstring wstrMessage = L"create_window: CreateWindowW failed.\n\
 Last error: " + std::to_wstring(GetLastError());
         MessageBoxW(nullptr, wstrMessage.c_str(), ID::wname, MB_ICONERROR);
         return nullptr;
     }
-    instance->hwnd = hwnd;
+    instance.hwnd = hwnd;
+    return hwnd;
+}
 
+template<typename T>
+std::unique_ptr<T> create_window
+(std::wstring title, std::wstring class_name, HINSTANCE hinst,
+ WndCoordinates* geometry=nullptr,
+ HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1), int flags=WS_OVERLAPPEDWINDOW,
+ HWND parent=nullptr) {
+    auto instance = std::unique_ptr<T>
+        (new T(title, class_name, hinst, background));
+    auto hwnd = create_window
+        (*instance.get(), hinst, geometry, background, flags, parent);
+    if (!hwnd) return nullptr;
     return instance;
 }
