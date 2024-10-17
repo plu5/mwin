@@ -74,7 +74,7 @@ void RulesList::dup_rule() {
     if (sel == -1) return;
     const auto i = rules.size();
     const auto& rule = rules.duplicate_rule(sel);
-    add_item(hwnd, rule.name, i);
+    add_item(hwnd, rule.name, i, true);
 }
 
 void RulesList::del_rule() {
