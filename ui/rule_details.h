@@ -23,7 +23,7 @@ struct RuleFieldChange {
 class RuleDetails : public Window {
     using super = Window;
 public:
-    HWND hwnd = 0;
+    HWND hwnd = NULL;
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
         : Window(title, class_name, hinst) {};
@@ -33,11 +33,11 @@ public:
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
 protected:
-    HWND parent_hwnd = 0;
+    HWND parent_hwnd = NULL;
     Edit rule_name_edit;
     Edit commentary_edit;
     std::vector<Edit*> edits = {&rule_name_edit, &commentary_edit};
-    HINSTANCE hinst = 0;
+    HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
     void disable_events();
@@ -56,8 +56,7 @@ protected:
     void vscroll_by_mousewheel(WPARAM wp);
     void vscroll(WPARAM wp);
     // Painting & double-buffering
-    HDC hdc1 = 0;
-    HDC hdc2 = 0;
+    HDC hdc1 = NULL;
     CompatDc dc2;
     CompatBitmap bmp;
     void setup_paint_buffers();

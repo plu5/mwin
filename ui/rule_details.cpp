@@ -169,21 +169,20 @@ void RuleDetails::setup_paint_buffers() {
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
     dc2.initialise(hdc1, hwnd);
-    hdc2 = dc2.handle;
-    SelectObject(hdc2, bmp.handle);
+    dc2.select_bitmap(bmp.h);
     ReleaseDC(hwnd, hdc1);
 }
 
 void RuleDetails::paint() {
     PAINTSTRUCT ps;
     auto size = get_size(hwnd);
-    paint_rect(hdc2, &size.rect, Theme::bg);
+    paint_rect(dc2.h, &size.rect, Theme::bg);
 
-    for (auto* edit : edits) edit->paint(hdc2);
-    paint_selectors_header(hdc2);
+    for (auto* edit : edits) edit->paint(dc2.h);
+    paint_selectors_header(dc2.h);
 
     hdc1 = BeginPaint(hwnd, &ps);
-    BitBlt(hdc1, 0, 0, size.w, size.h, hdc2, 0, 0, SRCCOPY);
+    BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
     EndPaint(hwnd, &ps);
 }
 
