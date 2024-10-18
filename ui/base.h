@@ -11,24 +11,20 @@ public:
     std::wstring title;
     std::wstring class_name;
     HWND hwnd = 0;
-    HBRUSH background;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     ~Window() {DestroyWindow(hwnd);}
 protected:
     Window
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst,
-     HBRUSH background) :
-        title(title), class_name(class_name), hinst(hinst),
-        background(background) {};
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst) :
+        title(title), class_name(class_name), hinst(hinst) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
 };
 
 template<typename T>
-HWND create_window(T& instance, HINSTANCE hinst,
- WndCoordinates* geometry=nullptr,
- HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1), int flags=WS_OVERLAPPEDWINDOW,
- HWND parent=nullptr) {
+HWND create_window
+(T& instance, HINSTANCE hinst, WndCoordinates* geometry=nullptr,
+ int flags=WS_OVERLAPPEDWINDOW, HWND parent=nullptr) {
     WNDCLASSEXW wcex {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -38,7 +34,7 @@ HWND create_window(T& instance, HINSTANCE hinst,
     wcex.hInstance      = hinst;
     wcex.hIcon          = parent ? NULL : LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = background;
+    wcex.hbrBackground  = NULL;
     wcex.lpszMenuName   = parent ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance.class_name.data();
     wcex.hIconSm        = parent ? NULL : LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
@@ -72,13 +68,12 @@ Last error: " + std::to_wstring(GetLastError());
 template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst,
- WndCoordinates* geometry=nullptr,
- HBRUSH background=(HBRUSH)(COLOR_BTNFACE+1), int flags=WS_OVERLAPPEDWINDOW,
+ WndCoordinates* geometry=nullptr, int flags=WS_OVERLAPPEDWINDOW,
  HWND parent=nullptr) {
     auto instance = std::unique_ptr<T>
-        (new T(title, class_name, hinst, background));
+        (new T(title, class_name, hinst));
     auto hwnd = create_window
-        (*instance.get(), hinst, geometry, background, flags, parent);
+        (*instance.get(), hinst, geometry, flags, parent);
     if (!hwnd) return nullptr;
     return instance;
 }

@@ -3,7 +3,6 @@
 #include "ui/base.h"
 #include "ui/main_window.h"
 #include "utility/safe_resources.h"
-#include "utility/win32_painting.h"
 #include "utility/console_output_support.h"
 #include "core/cli.h"
 #include "plog/Log.h"
@@ -13,11 +12,10 @@ int APIENTRY wWinMain
     auto con_support = ConsoleOutputSupport();
     cli::setup(__argc, __wargv, con_support);
 
-    auto background = Brush(Theme::bg);
     auto window = create_window<MainWindow>
         (load_wstr_resource(hinst, IDS_APP_TITLE),
          load_wstr_resource(hinst, IDC_MWIN),
-         hinst, nullptr, background.hbr);
+         hinst, nullptr);
 
     // "If the function terminates before entering the message loop, it should
     // return zero."

@@ -10,10 +10,9 @@ class MainWindow : public Window {
     using super = Window;
 public:
     MainWindow
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst,
-     HBRUSH background)
-        : Window(title, class_name, hinst, background),
-          rule_details(L"RuleDetails", L"RuleDetails", hinst, background) {};
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst)
+        : Window(title, class_name, hinst),
+          rule_details(L"RuleDetails", L"RuleDetails", hinst) {};
 protected:
     Config config;
     RulesList rules_list;

@@ -73,8 +73,9 @@ LRESULT CALLBACK edit_proc
     return DefSubclassProc(hwnd, msg, wp, lp);
 }
 
-void Edit::initialise(HWND parent_, HINSTANCE hinst_,
-                      int x_, int y_, int w_, int h_, const std::string& label_) {
+void Edit::initialise
+(HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
+ const std::string& label_, int label_foreground_) {
     hinst = hinst_;
     parent = parent_;
     label = label_;
@@ -83,6 +84,7 @@ void Edit::initialise(HWND parent_, HINSTANCE hinst_,
     y = y_;
     w = w_;
     h = h_;
+    label_foreground = label_foreground_;
     hwnd = create_edit(L"", x + label_width, y, w - label_width, h,
                        -1, parent, hinst);
     SetWindowSubclass(hwnd, edit_proc, static_cast<UINT_PTR>(-1), 0);
@@ -102,11 +104,11 @@ void Edit::paint(HDC hdc) {
     auto parent_rect = get_rect(parent);
     auto rect = get_relative_rect(hwnd, parent);
     if (rect.top + (rect.bottom - rect.top) < 0) return; // not in view
-    rect.top += 2; // gets the label text aligned with the edit text
+    rect.top += label_top_offset;
     rect.left = x;
     rect.right = parent_rect.left + label_width;
     SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, RGB(200, 200, 200));
+    SetTextColor(hdc, label_foreground);
     DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);
 }
 

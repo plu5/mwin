@@ -1,9 +1,9 @@
 #include "ui/rule_details.h"
-#include <commctrl.h> // WC_EDIT
 #include <windowsx.h> // Edit_SetText, Edit_GetTextLength, Edit_GetText
 #include "plog/Log.h"
 #include "utility/win32_casts.h" // hmenu_cast
-#include "utility/win32_geometry.h" // get_size
+#include "utility/win32_geometry.h" // get_size, get_rect
+#include "utility/win32_painting.h" // paint_text, paint_rect
 #include "utility/string_conversion.h" // string_to_wstring, wstring_to_string
 #include "core/coords.h" // WndCoordinates
 
@@ -13,7 +13,8 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     auto size = get_size(parent_hwnd);
     WndCoordinates geom = {0, y, size.w, size.h - y};
-    hwnd = create_window<RuleDetails>(*this, hinst, &geom, background, WS_CHILDWINDOW | WS_VISIBLE, parent_hwnd);
+    hwnd = create_window<RuleDetails>
+        (*this, hinst, &geom, WS_CHILDWINDOW | WS_VISIBLE, parent_hwnd);
 
     // NOTE(plu5): For correct scrollbar at launch, have to have this here;
     // doesn't work in WM_CREATE. And have to do this before children get
@@ -24,10 +25,12 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     rule_name_edit.initialise
         (hwnd, hinst, marg, marg,
-         get_size(hwnd).w - marg*2, 20, "Rule name:");
+         get_size(hwnd).w - marg*2, edit_height, "Rule name:",
+         label_foreground);
     commentary_edit.initialise
-        (hwnd, hinst, marg, 20 + 2*marg,
-         get_size(hwnd).w - marg*2, 20, "Commentary:");
+        (hwnd, hinst, marg, edit_height + 2*marg,
+         get_size(hwnd).w - marg*2, edit_height, "Commentary:",
+         label_foreground);
 }
 
 void RuleDetails::adjust_size() {
@@ -110,6 +113,7 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_SIZE:
         adjust_scrollinfo(HIWORD(lp));
+        setup_paint_buffers();
         break;
 
     case WM_VSCROLL:
@@ -161,23 +165,51 @@ void RuleDetails::vscroll(WPARAM wp) {
 }
 
 void RuleDetails::setup_paint_buffers() {
-    hdc = GetDC(hwnd);
+    hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
-    bmp.initialise(hdc, size.w, size.h);
-    dc2.initialise(hdc, hwnd);
-    hdc2 = dc2.hdc;
-    SelectObject(hdc2, bmp.hb);
-    ReleaseDC(hwnd, hdc);
+    bmp.initialise(hdc1, size.w, size.h);
+    dc2.initialise(hdc1, hwnd);
+    hdc2 = dc2.handle;
+    SelectObject(hdc2, bmp.handle);
+    ReleaseDC(hwnd, hdc1);
 }
 
 void RuleDetails::paint() {
     PAINTSTRUCT ps;
     auto size = get_size(hwnd);
-    FillRect(hdc2, &size.rect, background);
+    paint_rect(hdc2, &size.rect, Theme::bg);
 
     for (auto* edit : edits) edit->paint(hdc2);
+    paint_selectors_header(hdc2);
 
-    hdc = BeginPaint(hwnd, &ps);
-    BitBlt(hdc, 0, 0, size.w, size.h, hdc2, 0, 0, SRCCOPY);
+    hdc1 = BeginPaint(hwnd, &ps);
+    BitBlt(hdc1, 0, 0, size.w, size.h, hdc2, 0, 0, SRCCOPY);
     EndPaint(hwnd, &ps);
+}
+
+void RuleDetails::paint_selectors_header(HDC hdc) {
+    auto& last_edit = *edits.back();
+    auto rect = get_relative_rect(last_edit.hwnd, hwnd);
+    auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
+    rect.top += move_down;
+    rect.bottom += move_down;
+    rect.left = marg;
+    rect.right = get_size(hwnd).w - marg;
+    auto text_rect = rect;
+    text_rect.left += separator_label_left_offset;
+
+    TEXTMETRIC tm {};
+    GetTextMetrics(hdc, &tm);
+    auto text_height = tm.tmHeight + tm.tmExternalLeading;
+    rect.top += text_height/2;
+    rect.bottom = rect.top + separator_height;
+
+    if (not separator_font.initialised) separator_font.from_current(hdc, true);
+    text_rect.right = text_rect.left +
+        get_text_width(hdc, selectors_label, &separator_font);
+
+    paint_rect(hdc, &rect, Theme::fg);
+    paint_rect(hdc, &text_rect, Theme::bg);
+
+    paint_text(hdc, selectors_label, Theme::fg, &text_rect, &separator_font);
 }
