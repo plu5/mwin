@@ -33,6 +33,7 @@ protected:
     Edit rule_name_edit;
     Edit commentary_edit;
     Edit wnd_title_edit;
+    Edit wnd_exe_edit;
     int marg = 5;
     int edit_height = 20;
     std::vector<RuleField> fields = {
@@ -41,7 +42,10 @@ protected:
         {RuleFieldType::commentary, &commentary_edit, "Commentary:",
          marg, edit_height + 2*marg},
         {RuleFieldType::wnd_title, &wnd_title_edit, "Window title:",
-         marg, edit_height*3 + 4*marg}};
+         marg, edit_height*3 + 4*marg},
+        {RuleFieldType::wnd_exe, &wnd_exe_edit, "Exe path:",
+         marg, edit_height*4 + 5*marg}
+    };
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
