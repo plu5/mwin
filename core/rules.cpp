@@ -2,6 +2,72 @@
 #include "utility/uid.h"
 #include "utility/string_concat.h"
 
+RuleFieldData Rule::get(RuleFieldType field) const {
+    RuleFieldData data {};
+    switch (field) {
+    case RuleFieldType::id:
+        data.str = id;
+        break;
+    case RuleFieldType::enabled:
+        data.boolean = enabled;
+        break;
+    case RuleFieldType::name:
+        data.str = name;
+        break;
+    case RuleFieldType::commentary:
+        data.str = commentary;
+        break;
+    case RuleFieldType::wnd_title:
+        data.str = wnd_title;
+        break;
+    case RuleFieldType::wnd_exe:
+        data.str = wnd_exe;
+        break;
+    case RuleFieldType::coords:
+        data.coords = coords;
+        break;
+    case RuleFieldType::by_monitor:
+        data.boolean = by_monitor;
+        break;
+    case RuleFieldType::monitor:
+        data.index = monitor;
+        break;
+    }
+    return data;
+}
+
+void Rule::set(const RuleFieldChange& change) {
+    switch (change.field) {
+    case RuleFieldType::id:
+        id = change.data.str;
+        break;
+    case RuleFieldType::enabled:
+        enabled = change.data.boolean;
+        break;
+    case RuleFieldType::name:
+        name = change.data.str;
+        break;
+    case RuleFieldType::commentary:
+        commentary = change.data.str;
+        break;
+    case RuleFieldType::wnd_title:
+        wnd_title = change.data.str;
+        break;
+    case RuleFieldType::wnd_exe:
+        wnd_exe = change.data.str;
+        break;
+    case RuleFieldType::coords:
+        coords = change.data.coords;
+        break;
+    case RuleFieldType::by_monitor:
+        by_monitor = change.data.boolean;
+        break;
+    case RuleFieldType::monitor:
+        monitor = change.data.index;
+        break;
+    }
+}
+
 // Similar to Notepad++ nextUntitledNewNumber
 std::string RulesModel::next_untitled_name(std::string base, std::string sep) {
     std::string name = base;

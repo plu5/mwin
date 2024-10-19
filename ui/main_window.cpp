@@ -129,12 +129,6 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
         parse_menu_selections(LOWORD(wp));
     } else {
         auto change = rule_details.command(wp, lp);
-        if (change.field == RuleField::name) {
-            rules_list.modify_selected_rule_name(change.data.str);
-        } else if (change.field == RuleField::commentary) {
-            rules_list.modify_selected_rule_commentary(change.data.str);
-        } else if (change.field == RuleField::wnd_title) {
-            rules_list.modify_selected_rule_wnd_title(change.data.str);
-        }
+        rules_list.modify_selected_rule_field(change);
     }
 }

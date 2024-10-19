@@ -194,48 +194,22 @@ void RulesList::command(WPARAM wp, LPARAM lp) {
     }
 }
 
-void RulesList::modify_selected_rule_name(const std::string& new_name) {
+void RulesList::modify_selected_rule_field(const RuleFieldChange& change) {
     auto i = selected_index();
     if (i == -1) {
         LOG_ERROR << "No rule selected";
         return;
     }
     auto& rule = rule_at(i);
-    if (rule.name != new_name) {
-        rule.name = new_name;
+    rule.set(change);
+    if (change.field == RuleFieldType::name) {
         // Modify name of corresponding list view item
         LVITEM item {};
         item.iItem = i;
         item.mask = LVIF_TEXT;
-        auto name = new_name.empty() ?
-            empty_rule_name : string_to_wstring(new_name);
+        auto name = change.data.str.empty() ?
+            empty_rule_name : string_to_wstring(change.data.str);
         item.pszText = name.data();
         ListView_SetItem(hwnd, &item);
-    }
-}
-
-void RulesList::modify_selected_rule_commentary
-(const std::string& new_commentary) {
-    auto i = selected_index();
-    if (i == -1) {
-        LOG_ERROR << "No rule selected";
-        return;
-    }
-    auto& rule = rule_at(i);
-    if (rule.commentary != new_commentary) {
-        rule.commentary = new_commentary;
-    }
-}
-
-void RulesList::modify_selected_rule_wnd_title
-(const std::string& new_wnd_title) {
-    auto i = selected_index();
-    if (i == -1) {
-        LOG_ERROR << "No rule selected";
-        return;
-    }
-    auto& rule = rule_at(i);
-    if (rule.wnd_title != new_wnd_title) {
-        rule.wnd_title = new_wnd_title;
     }
 }

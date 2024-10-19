@@ -3,6 +3,21 @@
 #include <string>
 #include "core/coords.h"
 
+enum class RuleFieldType {none, id, enabled, name, commentary, wnd_title,
+    wnd_exe, coords, by_monitor, monitor};
+
+struct RuleFieldData {
+    std::string str;
+    bool boolean;
+    WndCoordinates coords;
+    size_t index;
+};
+
+struct RuleFieldChange {
+    RuleFieldType field = RuleFieldType::none;
+    RuleFieldData data;
+};
+
 struct Rule {
     std::string id;
     bool enabled = true;
@@ -13,6 +28,8 @@ struct Rule {
     WndCoordinates coords;
     bool by_monitor = true;
     size_t monitor = 1;
+    RuleFieldData get(RuleFieldType field) const;
+    void set(const RuleFieldChange& change);
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT

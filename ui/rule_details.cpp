@@ -23,25 +23,19 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     setup_paint_buffers();
 
-    rule_name_edit.initialise
-        (hwnd, hinst, marg, marg,
-         get_size(hwnd).w - marg*2, edit_height, "Rule name:",
-         label_foreground);
-    commentary_edit.initialise
-        (hwnd, hinst, marg, edit_height + 2*marg,
-         get_size(hwnd).w - marg*2, edit_height, "Commentary:",
-         label_foreground);
-    wnd_title_edit.initialise
-        (hwnd, hinst, marg, edit_height*3 + 4*marg,
-         get_size(hwnd).w - marg*2, edit_height, "Window title:",
-         label_foreground);
+    for (auto& field : fields) {
+        field.edit->initialise
+            (hwnd, hinst, field.x, field.y,
+             get_size(hwnd).w - marg*2, edit_height,
+             field.label, label_foreground);
+    }
 }
 
 void RuleDetails::adjust_size() {
     auto size = get_size(parent_hwnd);
     SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y, SWP_NOMOVE);
     auto w = get_size(hwnd).w - marg*2;
-    for (auto& edit : edits) edit->resize_width(w);
+    for (auto& field : fields) field.edit->resize_width(w);
 }
 
 void RuleDetails::enable_events() {
@@ -54,15 +48,13 @@ void RuleDetails::disable_events() {
 
 void RuleDetails::populate(const Rule& rule) {
     disable_events();
-    rule_name_edit.populate(rule.name);
-    commentary_edit.populate(rule.commentary);
-    wnd_title_edit.populate(rule.wnd_title);
+    for (auto& field : fields) field.edit->populate(rule.get(field.type).str);
     enable_events();
 }
 
 void RuleDetails::clear_and_disable() {
     disable_events();
-    for (auto* edit : edits) edit->clear_and_disable();
+    for (auto& field : fields) field.edit->clear_and_disable();
     enable_events();
 }
 
@@ -70,12 +62,10 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     if (!events_enabled) return {};
     auto hwnd_ = reinterpret_cast<HWND>(lp);
     if (HIWORD(wp) == EN_CHANGE) {
-        if (hwnd_ == rule_name_edit.hwnd) {
-            return {RuleField::name, {rule_name_edit.text()}}; 
-        } else if (hwnd_ == commentary_edit.hwnd) {
-            return {RuleField::commentary, {commentary_edit.text()}}; 
-        } else if (hwnd_ == wnd_title_edit.hwnd) {
-            return {RuleField::wnd_title, {wnd_title_edit.text()}}; 
+        for (auto& field : fields) {
+            if (hwnd_ == field.edit->hwnd) {
+                return {field.type, {field.edit->text()}};
+            }
         }
     }
     return {};
@@ -185,7 +175,7 @@ void RuleDetails::paint() {
     auto size = get_size(hwnd);
     paint_rect(dc2.h, &size.rect, Theme::bg);
 
-    for (auto* edit : edits) edit->paint(dc2.h);
+    for (auto& field : fields) field.edit->paint(dc2.h);
     paint_selectors_header(dc2.h);
 
     hdc1 = BeginPaint(hwnd, &ps);
@@ -194,7 +184,7 @@ void RuleDetails::paint() {
 }
 
 void RuleDetails::paint_selectors_header(HDC hdc) {
-    auto& last_edit = *edits.at(1);
+    auto& last_edit = *fields.at(1).edit;
     auto rect = get_relative_rect(last_edit.hwnd, hwnd);
     auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
     rect.top += move_down;

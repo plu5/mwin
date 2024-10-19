@@ -14,9 +14,7 @@ public:
     void load(std::filesystem::path user_dir);
     void save(std::filesystem::path user_dir);
     void command(WPARAM wp, LPARAM lp);
-    void modify_selected_rule_name(const std::string& new_name);
-    void modify_selected_rule_commentary(const std::string& new_commentary);
-    void modify_selected_rule_wnd_title(const std::string& new_wnd_title);
+    void modify_selected_rule_field(const RuleFieldChange& change);
     Rule& rule_at(int i);
 protected:
     HWND parent_hwnd = 0;

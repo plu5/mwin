@@ -3,21 +3,17 @@
 #include <string> // std::string, std::wstring
 #include <Windows.h> // HWND, HINSTANCE, WPARAM, LPARAM, DWORD
 #include <vector> // std::vector
-#include "core/rules.h" // Rule
+#include "core/rules.h" // Rule, RuleFieldType, RuleFieldChange
 #include "ui/edit.h" // Edit
 #include "ui/base.h" // Window, create_window
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include "constants.h" // Theme
 
-enum class RuleField {none, name, commentary, wnd_title};
-
-struct RuleFieldData {
-    std::string str;
-};
-
-struct RuleFieldChange {
-    RuleField field = RuleField::none;
-    RuleFieldData data;
+struct RuleField {
+    RuleFieldType type;
+    Edit* edit;
+    std::string label;
+    int x, y;
 };
 
 class RuleDetails : public Window {
@@ -37,8 +33,15 @@ protected:
     Edit rule_name_edit;
     Edit commentary_edit;
     Edit wnd_title_edit;
-    std::vector<Edit*> edits = {&rule_name_edit, &commentary_edit,
-        &wnd_title_edit};
+    int marg = 5;
+    int edit_height = 20;
+    std::vector<RuleField> fields = {
+        {RuleFieldType::name, &rule_name_edit, "Rule name:",
+         marg, marg},
+        {RuleFieldType::commentary, &commentary_edit, "Commentary:",
+         marg, edit_height + 2*marg},
+        {RuleFieldType::wnd_title, &wnd_title_edit, "Window title:",
+         marg, edit_height*3 + 4*marg}};
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
@@ -46,11 +49,9 @@ protected:
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     // Positioning
     int y = 0;
-    int marg = 5;
     // TODO(plu5): Calculate dynamically with adjustments depending on the
     // actual size of things and font sizes which may alter layout
     int useful_height = 70; // Full height for scrolling
-    int edit_height = 20;
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,
         wheel_scroll_lines = 0;
