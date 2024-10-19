@@ -55,7 +55,7 @@ protected:
     int y = 0;
     // TODO(plu5): Calculate dynamically with adjustments depending on the
     // actual size of things and font sizes which may alter layout
-    int useful_height = 70; // Full height for scrolling
+    int useful_height = 150; // Full height for scrolling
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,
         wheel_scroll_lines = 0;
@@ -68,10 +68,12 @@ protected:
     CompatBitmap bmp;
     void setup_paint_buffers();
     void paint();
-    void paint_selectors_header(HDC hdc);
+    void paint_section_header
+    (HDC hdc, size_t vertical_order_position, const std::wstring& label);
     int label_foreground = Theme::fg;
     int separator_height = 2;
     int separator_label_left_offset = 20;
     std::wstring selectors_label = L"SELECTORS";
+    std::wstring geometry_label = L"GEOMETRY";
     Font separator_font;
 };

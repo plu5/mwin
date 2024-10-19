@@ -176,15 +176,19 @@ void RuleDetails::paint() {
     paint_rect(dc2.h, &size.rect, Theme::bg);
 
     for (auto& field : fields) field.edit->paint(dc2.h);
-    paint_selectors_header(dc2.h);
+    paint_section_header(dc2.h, 3, selectors_label);
+    paint_section_header(dc2.h, 5, geometry_label);
 
     hdc1 = BeginPaint(hwnd, &ps);
     BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
     EndPaint(hwnd, &ps);
 }
 
-void RuleDetails::paint_selectors_header(HDC hdc) {
-    auto& last_edit = *fields.at(1).edit;
+void RuleDetails::paint_section_header
+(HDC hdc, size_t vertical_order_position, const std::wstring& label) {
+    auto pos = vertical_order_position - 2;
+    if (pos < 0 or pos >= fields.size()) pos = 0;
+    auto& last_edit = *fields.at(pos).edit;
     auto rect = get_relative_rect(last_edit.hwnd, hwnd);
     auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
     rect.top += move_down;
@@ -202,10 +206,10 @@ void RuleDetails::paint_selectors_header(HDC hdc) {
 
     if (not separator_font.initialised) separator_font.from_current(hdc, true);
     text_rect.right = text_rect.left +
-        get_text_width(hdc, selectors_label, &separator_font);
+        get_text_width(hdc, label, &separator_font);
 
     paint_rect(hdc, &rect, Theme::fg);
     paint_rect(hdc, &text_rect, Theme::bg);
 
-    paint_text(hdc, selectors_label, Theme::fg, &text_rect, &separator_font);
+    paint_text(hdc, label, Theme::fg, &text_rect, &separator_font);
 }
