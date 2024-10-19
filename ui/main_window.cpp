@@ -133,6 +133,8 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
             rules_list.modify_selected_rule_name(change.data.str);
         } else if (change.field == RuleField::commentary) {
             rules_list.modify_selected_rule_commentary(change.data.str);
+        } else if (change.field == RuleField::wnd_title) {
+            rules_list.modify_selected_rule_wnd_title(change.data.str);
         }
     }
 }

@@ -226,3 +226,16 @@ void RulesList::modify_selected_rule_commentary
         rule.commentary = new_commentary;
     }
 }
+
+void RulesList::modify_selected_rule_wnd_title
+(const std::string& new_wnd_title) {
+    auto i = selected_index();
+    if (i == -1) {
+        LOG_ERROR << "No rule selected";
+        return;
+    }
+    auto& rule = rule_at(i);
+    if (rule.wnd_title != new_wnd_title) {
+        rule.wnd_title = new_wnd_title;
+    }
+}

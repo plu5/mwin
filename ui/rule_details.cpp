@@ -31,6 +31,10 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         (hwnd, hinst, marg, edit_height + 2*marg,
          get_size(hwnd).w - marg*2, edit_height, "Commentary:",
          label_foreground);
+    wnd_title_edit.initialise
+        (hwnd, hinst, marg, edit_height*3 + 4*marg,
+         get_size(hwnd).w - marg*2, edit_height, "Window title:",
+         label_foreground);
 }
 
 void RuleDetails::adjust_size() {
@@ -52,6 +56,7 @@ void RuleDetails::populate(const Rule& rule) {
     disable_events();
     rule_name_edit.populate(rule.name);
     commentary_edit.populate(rule.commentary);
+    wnd_title_edit.populate(rule.wnd_title);
     enable_events();
 }
 
@@ -69,6 +74,8 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
             return {RuleField::name, {rule_name_edit.text()}}; 
         } else if (hwnd_ == commentary_edit.hwnd) {
             return {RuleField::commentary, {commentary_edit.text()}}; 
+        } else if (hwnd_ == wnd_title_edit.hwnd) {
+            return {RuleField::wnd_title, {wnd_title_edit.text()}}; 
         }
     }
     return {};
@@ -187,7 +194,7 @@ void RuleDetails::paint() {
 }
 
 void RuleDetails::paint_selectors_header(HDC hdc) {
-    auto& last_edit = *edits.back();
+    auto& last_edit = *edits.at(1);
     auto rect = get_relative_rect(last_edit.hwnd, hwnd);
     auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
     rect.top += move_down;

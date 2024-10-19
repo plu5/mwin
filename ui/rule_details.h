@@ -9,7 +9,7 @@
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include "constants.h" // Theme
 
-enum class RuleField {none, name, commentary};
+enum class RuleField {none, name, commentary, wnd_title};
 
 struct RuleFieldData {
     std::string str;
@@ -36,7 +36,9 @@ protected:
     HWND parent_hwnd = NULL;
     Edit rule_name_edit;
     Edit commentary_edit;
-    std::vector<Edit*> edits = {&rule_name_edit, &commentary_edit};
+    Edit wnd_title_edit;
+    std::vector<Edit*> edits = {&rule_name_edit, &commentary_edit,
+        &wnd_title_edit};
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
