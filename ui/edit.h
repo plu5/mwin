@@ -10,9 +10,11 @@ public:
     int label_top_offset = 2;
     void initialise
     (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
-     const std::string& label_, int label_foreground_=RGB(200, 200, 200));
-    std::string text();
+     const std::string& label_, int label_foreground_=RGB(200, 200, 200),
+     int label_width=90);
+    std::string text() const;
     void resize_width(int w_);
+    void reposition(int x_, int y_);
     void paint(HDC hdc);
     void clear_and_disable();
     void populate(const std::string& text);

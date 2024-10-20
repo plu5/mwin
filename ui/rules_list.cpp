@@ -64,9 +64,9 @@ void RulesList::add_rule(const Rule& rule, size_t i, bool select) {
     add_item(hwnd, rule.name, i, select);
 }
 
-void RulesList::add_rule() {
+void RulesList::add_rule(bool select) {
     const auto i = rules.size();
-    add_rule(rules.create_rule(), i, true);
+    add_rule(rules.create_rule(), i, select);
 }
 
 void RulesList::dup_rule() {
@@ -130,9 +130,8 @@ void RulesList::load(std::filesystem::path user_dir) {
     load_rules(rules, user_dir);
     if (rules.size() > 0) {
         repopulate();
-        select_rule(0);
     } else {
-        add_rule();
+        add_rule(false);
     }
 }
 

@@ -14,6 +14,7 @@ public:
         : Window(title, class_name, hinst),
           rule_details(L"RuleDetails", L"RuleDetails", hinst) {};
 protected:
+    bool loaded = false;
     Config config;
     RulesList rules_list;
     RuleDetails rule_details;

@@ -75,8 +75,10 @@ void MainWindow::initialise() {
     config.load();
     update_geometry();
     rules_list.initialise(hwnd, hinst);
-    rule_details.initialise(hwnd, rules_list.height);
     rules_list.load(config.user_dir);
+    rule_details.initialise(hwnd, rules_list.height);
+    loaded = true;
+    rules_list.select_rule(0);
 }
 
 void MainWindow::finalise() {
@@ -87,6 +89,7 @@ void MainWindow::finalise() {
 }
 
 void MainWindow::notify(LPARAM lp) {
+    if (not loaded) return;
     auto* nmh = reinterpret_cast<NMHDR*>(lp);
     switch(nmh->code) {
     case LVN_ITEMCHANGED:

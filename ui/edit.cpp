@@ -75,7 +75,7 @@ LRESULT CALLBACK edit_proc
 
 void Edit::initialise
 (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
- const std::string& label_, int label_foreground_) {
+ const std::string& label_, int label_foreground_, int label_width_) {
     hinst = hinst_;
     parent = parent_;
     label = label_;
@@ -85,12 +85,13 @@ void Edit::initialise
     w = w_;
     h = h_;
     label_foreground = label_foreground_;
+    label_width = label_width_;
     hwnd = create_edit(L"", x + label_width, y, w - label_width, h,
                        -1, parent, hinst);
     SetWindowSubclass(hwnd, edit_proc, static_cast<UINT_PTR>(-1), 0);
 }
 
-std::string Edit::text() {
+std::string Edit::text() const {
     return get_text(hwnd);
 }
 
@@ -100,13 +101,20 @@ void Edit::resize_width(int w_) {
                  SWP_NOMOVE);
 }
 
+void Edit::reposition(int x_, int y_) {
+    x = x_;
+    y = y_;
+    SetWindowPos(hwnd, NULL, x + label_width, y, 0, 0,
+                 SWP_NOSIZE);
+}
+
 void Edit::paint(HDC hdc) {
     auto parent_rect = get_rect(parent);
     auto rect = get_relative_rect(hwnd, parent);
     if (rect.top + (rect.bottom - rect.top) < 0) return; // not in view
     rect.top += label_top_offset;
     rect.left = x;
-    rect.right = parent_rect.left + label_width;
+    rect.right = x + label_width;
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, label_foreground);
     DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);

@@ -16,6 +16,7 @@ public:
     void command(WPARAM wp, LPARAM lp);
     void modify_selected_rule_field(const RuleFieldChange& change);
     Rule& rule_at(int i);
+    void select_rule(int index);
 protected:
     HWND parent_hwnd = 0;
     HWND add_btn = 0;
@@ -25,10 +26,9 @@ protected:
     int btn_size = 25;
     RulesModel rules;
     void repopulate();
-    void select_rule(int index);
     int selected_index() const;
     Rule* selected_rule();
-    void add_rule();
+    void add_rule(bool select=true);
     void add_rule(const Rule& rule, size_t i, bool select=false);
     void dup_rule();
     void del_rule();

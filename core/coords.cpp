@@ -15,3 +15,13 @@ void WndCoordinates::by_monitor(size_t i) {
     w = m.right - m.left;
     h = m.bottom - m.top;
 }
+
+int& WndCoordinates::operator[](const size_t i) {
+    switch(i) {
+    case 0: return x;
+    case 1: return y;
+    case 2: return w;
+    case 3: return h;
+    default: throw std::invalid_argument("invalid index");
+    }
+}

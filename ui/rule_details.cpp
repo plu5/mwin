@@ -24,18 +24,32 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     setup_paint_buffers();
 
     for (auto& field : fields) {
+        WndCoordinates fgeom = calculate_field_geometry(field);
         field.edit->initialise
-            (hwnd, hinst, field.x, field.y,
-             get_size(hwnd).w - marg*2, edit_height,
-             field.label, label_foreground);
+            (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
+             field.label, label_foreground, field.label_width);
+    }
+}
+
+WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
+    if (field.type == RuleFieldType::coords) {
+        auto w = (get_size(hwnd).w - 5*marg) / 4;
+        auto i = field.horizontal_pos;
+        return {(i+1)*marg + i*w, field.y, w, edit_height};
+    } else {
+        return {field.x, field.y, get_size(hwnd).w - marg*2, edit_height};
     }
 }
 
 void RuleDetails::adjust_size() {
     auto size = get_size(parent_hwnd);
     SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y, SWP_NOMOVE);
-    auto w = get_size(hwnd).w - marg*2;
-    for (auto& field : fields) field.edit->resize_width(w);
+    for (auto& field : fields) {
+        auto fgeom = calculate_field_geometry(field);
+        field.edit->resize_width(fgeom.w);
+        if (field.x == dynamic or field.y == dynamic)
+            field.edit->reposition(fgeom.x, fgeom.y); 
+    }
 }
 
 void RuleDetails::enable_events() {
@@ -48,7 +62,16 @@ void RuleDetails::disable_events() {
 
 void RuleDetails::populate(const Rule& rule) {
     disable_events();
-    for (auto& field : fields) field.edit->populate(rule.get(field.type).str);
+    auto i = 0;
+    for (auto& field : fields) {
+        if (field.type == RuleFieldType::coords) {
+            field.edit->populate
+                (std::to_string(rule.get(field.type).coords[i]));
+            i += 1;
+        } else {
+            field.edit->populate(rule.get(field.type).str);
+        }
+    }
     enable_events();
 }
 
@@ -58,13 +81,31 @@ void RuleDetails::clear_and_disable() {
     enable_events();
 }
 
+WndCoordinates RuleDetails::get_coords() {
+    WndCoordinates coords {};
+    auto i = 0;
+    for (auto& edit : {x_edit, y_edit, w_edit, h_edit}) {
+        try {
+            coords[i] = std::stoi(edit.text());
+        } catch (std::invalid_argument&) { // leave as 0
+        } catch (std::out_of_range&) {     // leave as 0
+        }
+        i += 1;
+    }
+    return coords;
+}
+
 RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     if (!events_enabled) return {};
     auto hwnd_ = reinterpret_cast<HWND>(lp);
     if (HIWORD(wp) == EN_CHANGE) {
         for (auto& field : fields) {
             if (hwnd_ == field.edit->hwnd) {
-                return {field.type, {field.edit->text()}};
+                if (field.type == RuleFieldType::coords) {
+                    return {field.type, {.coords = get_coords()}}; 
+                } else {
+                    return {field.type, {.str = field.edit->text()}};
+                }
             }
         }
     }

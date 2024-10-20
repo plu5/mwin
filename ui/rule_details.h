@@ -13,7 +13,7 @@ struct RuleField {
     RuleFieldType type;
     Edit* edit;
     std::string label;
-    int x, y;
+    int x, y, label_width, horizontal_pos;
 };
 
 class RuleDetails : public Window {
@@ -34,28 +34,43 @@ protected:
     Edit commentary_edit;
     Edit wnd_title_edit;
     Edit wnd_exe_edit;
+    Edit x_edit;
+    Edit y_edit;
+    Edit w_edit;
+    Edit h_edit;
     int marg = 5;
     int edit_height = 20;
+    int dynamic = -1;
     std::vector<RuleField> fields = {
         {RuleFieldType::name, &rule_name_edit, "Rule name:",
-         marg, marg},
+         marg, marg, 90},
         {RuleFieldType::commentary, &commentary_edit, "Commentary:",
-         marg, edit_height + 2*marg},
+         marg, edit_height + 2*marg, 90, 0},
         {RuleFieldType::wnd_title, &wnd_title_edit, "Window title:",
-         marg, edit_height*3 + 4*marg},
+         marg, edit_height*3 + 4*marg, 90, 0},
         {RuleFieldType::wnd_exe, &wnd_exe_edit, "Exe path:",
-         marg, edit_height*4 + 5*marg}
+         marg, edit_height*4 + 5*marg, 90, 0},
+        {RuleFieldType::coords, &x_edit, "X:",
+         dynamic, edit_height*6 + 7*marg, 18, 0},
+        {RuleFieldType::coords, &y_edit, "Y:",
+         dynamic, edit_height*6 + 7*marg, 18, 1},
+        {RuleFieldType::coords, &w_edit, "W:",
+         dynamic, edit_height*6 + 7*marg, 18, 2},
+        {RuleFieldType::coords, &h_edit, "H:",
+         dynamic, edit_height*6 + 7*marg, 18, 3}
     };
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
     void disable_events();
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
+    WndCoordinates get_coords();
     // Positioning
     int y = 0;
     // TODO(plu5): Calculate dynamically with adjustments depending on the
     // actual size of things and font sizes which may alter layout
-    int useful_height = 150; // Full height for scrolling
+    int useful_height = 175; // Full height for scrolling
+    WndCoordinates calculate_field_geometry(RuleField field);
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,
         wheel_scroll_lines = 0;
