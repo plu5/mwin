@@ -8,6 +8,7 @@
 #include "core/coords.h" // WndCoordinates
 #include "utility/monitors.h" // Monitors
 #include "utility/string_concat.h" // concat
+#include "ui/button.h" // create_btn
 
 void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     parent_hwnd = parent_hwnd_;
@@ -36,6 +37,10 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
                 (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h);
         }
     }
+
+    identify_monitor_btn = create_btn(L"?", marg, monitor_select.y,
+                                      btn_size, btn_size, -1, hwnd, hinst);
+    
     populate_monitor_select();
 }
 
@@ -58,6 +63,19 @@ void RuleDetails::set_coords_by_selected_monitor(int selected) {
     }
 }
 
+void RuleDetails::set_identify_btn_state_by_selected_monitor(int selected) {
+    Button_Enable(identify_monitor_btn, selected ? true : false);
+}
+
+void RuleDetails::show_identify_indicator() {
+    auto coords = get_coords();
+    auto x_ = coords.x + coords.w/2 - identify_indicator.w/2;
+    auto y_ = coords.y + coords.h/2 - identify_indicator.h/2;
+    identify_indicator.show
+        (x_, y_,
+         identify_monitor_text + std::to_wstring(monitor_select.selected()));
+}
+
 void RuleDetails::change_monitor_select_if_coords_differ
 (const WndCoordinates& coords) {
     auto selected = monitor_select.selected();
@@ -68,12 +86,17 @@ void RuleDetails::change_monitor_select_if_coords_differ
 }
 
 WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
-    if (field.type == RuleFieldType::coords) {
-        auto w = (get_size(hwnd).w - 5*marg) / 4;
-        auto i = field.horizontal_pos;
+    auto w = get_size(hwnd).w;
+    auto i = field.horizontal_pos;
+
+    switch (field.type) {
+    case RuleFieldType::coords:
+        w = (w - 5*marg) / 4;
         return {(i+1)*marg + i*w, field.y, w, edit_height};
-    } else {
-        return {field.x, field.y, get_size(hwnd).w - marg*2, edit_height};
+    case RuleFieldType::monitor:
+        return {field.x, field.y, w - marg*2 - btn_size, edit_height};
+    default:
+        return {field.x, field.y, w - marg*2, edit_height};
     }
 }
 
@@ -111,7 +134,9 @@ void RuleDetails::populate(const Rule& rule) {
         } else if (field.edit) {
             field.edit->populate(rule.get(field.type).str);
         } else if (field.type == RuleFieldType::monitor) {
-            monitor_select.select(rule.get(field.type).num);
+            auto selected = rule.get(field.type).num;
+            monitor_select.select(selected);
+            set_identify_btn_state_by_selected_monitor(selected);
         }
     }
     enable_events();
@@ -123,6 +148,7 @@ void RuleDetails::clear_and_disable() {
         if (field.edit) field.edit->clear_and_disable();
         else if (field.select) field.select->clear_and_disable();
     }
+    set_identify_btn_state_by_selected_monitor(0);
     enable_events();
 }
 
@@ -151,7 +177,7 @@ void RuleDetails::set_coords(const WndCoordinates& coords) {
 RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     if (!events_enabled) return {};
     auto hwnd_ = reinterpret_cast<HWND>(lp);
-    if (HIWORD(wp) == EN_CHANGE) {
+    if (HIWORD(wp) == EN_CHANGE) { // edit
         for (auto& field : fields) {
             if (field.edit and hwnd_ == field.edit->hwnd) {
                 if (field.type == RuleFieldType::coords) {
@@ -163,14 +189,20 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
                 }
             }
         }
-    } else if (HIWORD(wp) == CBN_SELCHANGE) {
+    } else if (HIWORD(wp) == CBN_SELCHANGE) { // combobox
         for (auto& field : fields) {
             if (field.select and hwnd_ == field.select->hwnd) {
                 auto selected = field.select->selected();
-                if (field.type == RuleFieldType::monitor)
+                if (field.type == RuleFieldType::monitor) {
+                    set_identify_btn_state_by_selected_monitor(selected);
                     set_coords_by_selected_monitor(selected);
+                }
                 return {field.type, {.num = selected}};
             }
+        }
+    } else if (HIWORD(wp) == BN_CLICKED) { // button
+        if (hwnd_ == identify_monitor_btn) {
+            show_identify_indicator();
         }
     }
     return {};
@@ -278,7 +310,7 @@ void RuleDetails::setup_paint_buffers() {
 void RuleDetails::paint() {
     PAINTSTRUCT ps;
     auto size = get_size(hwnd);
-    paint_rect(dc2.h, &size.rect, Theme::bg);
+    paint_rect(dc2.h, Theme::bg, &size.rect);
 
     for (auto& field : fields) if (field.edit) field.edit->paint(dc2.h);
     paint_section_header(dc2.h, 3, selectors_label);
@@ -313,8 +345,8 @@ void RuleDetails::paint_section_header
     text_rect.right = text_rect.left +
         get_text_width(hdc, label, &separator_font);
 
-    paint_rect(hdc, &rect, Theme::fg);
-    paint_rect(hdc, &text_rect, Theme::bg);
+    paint_rect(hdc, Theme::fg, &rect);
+    paint_rect(hdc, Theme::bg, &text_rect);
 
     paint_text(hdc, label, Theme::fg, &text_rect, &separator_font);
 }

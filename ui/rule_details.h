@@ -7,6 +7,7 @@
 #include "ui/edit.h" // Edit
 #include "ui/select.h" // Select
 #include "ui/base.h" // Window, create_window
+#include "ui/identify_indicator.h" // IdentifyIndicator
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include "constants.h" // Theme
 
@@ -24,7 +25,9 @@ public:
     HWND hwnd = NULL;
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
-        : Window(title, class_name, hinst) {};
+        : Window(title, class_name, hinst),
+          identify_indicator(L"Identify monitor", L"IdentifyIndicator",
+                             hinst) {};
     void initialise(HWND parent_hwnd_, int y_);
     void adjust_size();
     void populate(const Rule& rule);
@@ -41,8 +44,12 @@ protected:
     Edit w_edit;
     Edit h_edit;
     Select monitor_select;
+    HWND identify_monitor_btn = NULL;
+    std::wstring identify_monitor_text = L"This is monitor ";
+    IdentifyIndicator identify_indicator;
     int marg = 5;
     int edit_height = 20;
+    int btn_size = 25;
     int dynamic = -1;
     std::vector<RuleField> fields = {
         {.type = RuleFieldType::name, .edit = &rule_name_edit,
@@ -54,7 +61,7 @@ protected:
         {.type = RuleFieldType::wnd_exe, .edit = &wnd_exe_edit,
          .label = "Exe path:", .x = marg, .y = edit_height*4 + 5*marg},
         {.type = RuleFieldType::monitor, .select = &monitor_select,
-         .x = marg, .y = edit_height*6 + 7*marg},
+         .x = marg + btn_size, .y = edit_height*6 + 7*marg},
         {.type = RuleFieldType::coords, .edit = &x_edit, .label = "X:",
          .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
          .horizontal_pos = 0},
@@ -77,6 +84,8 @@ protected:
     void set_coords(const WndCoordinates& coords);
     void populate_monitor_select();
     void set_coords_by_selected_monitor(int selected);
+    void set_identify_btn_state_by_selected_monitor(int selected);
+    void show_identify_indicator();
     void change_monitor_select_if_coords_differ(const WndCoordinates& coords);
     // Positioning
     int y = 0;

@@ -24,7 +24,7 @@ protected:
 template<typename T>
 HWND create_window
 (T& instance, HINSTANCE hinst, WndCoordinates* geometry=nullptr,
- int flags=WS_OVERLAPPEDWINDOW, HWND parent=nullptr) {
+ int flags=WS_OVERLAPPEDWINDOW, HWND parent=nullptr, bool menu=true) {
     WNDCLASSEXW wcex {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -32,12 +32,14 @@ HWND create_window
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hinst;
-    wcex.hIcon          = parent ? NULL : LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.hIcon          = parent ? NULL :
+        LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = NULL;
-    wcex.lpszMenuName   = parent ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
+    wcex.lpszMenuName   = (parent or not menu) ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance.class_name.data();
-    wcex.hIconSm        = parent ? NULL : LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.hIconSm        = parent ? NULL :
+        LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
 
     if (RegisterClassExW(&wcex) == 0) {
         std::wstring wstrMessage = L"create_window: RegisterClassExW failed.\n\

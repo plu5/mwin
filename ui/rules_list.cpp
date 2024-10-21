@@ -1,12 +1,12 @@
 #include "ui/rules_list.h"
 #include <commctrl.h> // win32 listview
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
-#include <uxtheme.h> // SetWindowTheme
 #include "plog/Log.h"
 #include "utility/string_conversion.h" // string_to_wstring
 #include "utility/win32_casts.h" // hmenu_cast
 #include "core/save.h" // load_rules, save_rules
 #include "utility/win32_geometry.h" // get_size
+#include "ui/button.h" // create_btn
 
 const std::wstring empty_rule_name = L"[no name]";
 
@@ -114,17 +114,6 @@ LRESULT CALLBACK listview_proc
         break;
     }
     return DefSubclassProc(hwnd, msg, wp, lp);
-}
-
-HWND create_btn
-(std::wstring caption, int x, int y, int w, int h, int id,
- HWND parent, HINSTANCE hinst, bool old_style=true) {
-    auto hwnd = CreateWindow
-        (WC_BUTTON, caption.data(),
-         WS_CHILD | WS_VISIBLE,
-         x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
-    if (old_style) SetWindowTheme(hwnd, L" ", L" ");
-    return hwnd;
 }
 
 void RulesList::load(std::filesystem::path user_dir) {

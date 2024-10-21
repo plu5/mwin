@@ -147,7 +147,9 @@
     <ClInclude Include="core\save.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ui\base.h" />
+    <ClInclude Include="ui\button.h" />
     <ClInclude Include="ui\edit.h" />
+    <ClInclude Include="ui\identify_indicator.h" />
     <ClInclude Include="ui\main_window.h" />
     <ClInclude Include="ui\rules_list.h" />
     <ClInclude Include="ui\rule_details.h" />
@@ -175,6 +177,7 @@
     <ClCompile Include="mwin.cpp" />
     <ClCompile Include="ui\base.cpp" />
     <ClCompile Include="ui\edit.cpp" />
+    <ClCompile Include="ui\identify_indicator.cpp" />
     <ClCompile Include="ui\main_window.cpp" />
     <ClCompile Include="ui\rules_list.cpp" />
     <ClCompile Include="ui\rule_details.cpp" />
