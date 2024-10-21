@@ -84,6 +84,7 @@ void RulesList::del_rule() {
     rules.delete_rule(sel);
     // Adjust selection
     if (sel < rules.size()) select_rule(sel);
+    else if (not sel) return;
     else select_rule(static_cast<int>(rules.size()) - 1);
 }
 

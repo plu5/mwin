@@ -16,7 +16,10 @@ struct WndCoordinates {
         h_ = h;
     }
     void by_monitor(size_t i);
-    int& operator[](const size_t i);
+    int& operator[](size_t i);
+    const int& operator[](size_t i) const;
+    bool operator==(const WndCoordinates& rhs) const;
+    bool operator!=(const WndCoordinates& rhs) const;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WndCoordinates, x, y, w, h)

@@ -131,7 +131,9 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
     if (lp == 0 and HIWORD(wp) == 0) { // menu
         parse_menu_selections(LOWORD(wp));
     } else {
-        auto change = rule_details.command(wp, lp);
-        rules_list.modify_selected_rule_field(change);
+        if (rules_list.selected_index() != -1) {
+            auto change = rule_details.command(wp, lp);
+            rules_list.modify_selected_rule_field(change);
+        }
     }
 }

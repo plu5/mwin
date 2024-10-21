@@ -5,15 +5,17 @@
 #include <vector> // std::vector
 #include "core/rules.h" // Rule, RuleFieldType, RuleFieldChange
 #include "ui/edit.h" // Edit
+#include "ui/select.h" // Select
 #include "ui/base.h" // Window, create_window
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include "constants.h" // Theme
 
 struct RuleField {
-    RuleFieldType type;
-    Edit* edit;
-    std::string label;
-    int x, y, label_width, horizontal_pos;
+    RuleFieldType type = RuleFieldType::none;
+    Edit* edit = nullptr;
+    Select* select = nullptr;
+    std::string label = "";
+    int x = 0, y = 0, label_width = 90, horizontal_pos = 0;
 };
 
 class RuleDetails : public Window {
@@ -38,26 +40,33 @@ protected:
     Edit y_edit;
     Edit w_edit;
     Edit h_edit;
+    Select monitor_select;
     int marg = 5;
     int edit_height = 20;
     int dynamic = -1;
     std::vector<RuleField> fields = {
-        {RuleFieldType::name, &rule_name_edit, "Rule name:",
-         marg, marg, 90},
-        {RuleFieldType::commentary, &commentary_edit, "Commentary:",
-         marg, edit_height + 2*marg, 90, 0},
-        {RuleFieldType::wnd_title, &wnd_title_edit, "Window title:",
-         marg, edit_height*3 + 4*marg, 90, 0},
-        {RuleFieldType::wnd_exe, &wnd_exe_edit, "Exe path:",
-         marg, edit_height*4 + 5*marg, 90, 0},
-        {RuleFieldType::coords, &x_edit, "X:",
-         dynamic, edit_height*6 + 7*marg, 18, 0},
-        {RuleFieldType::coords, &y_edit, "Y:",
-         dynamic, edit_height*6 + 7*marg, 18, 1},
-        {RuleFieldType::coords, &w_edit, "W:",
-         dynamic, edit_height*6 + 7*marg, 18, 2},
-        {RuleFieldType::coords, &h_edit, "H:",
-         dynamic, edit_height*6 + 7*marg, 18, 3}
+        {.type = RuleFieldType::name, .edit = &rule_name_edit,
+         .label = "Rule name:", .x = marg, .y = marg},
+        {.type = RuleFieldType::commentary, .edit = &commentary_edit,
+         .label = "Commentary:", .x = marg, .y = edit_height + 2*marg},
+        {.type = RuleFieldType::wnd_title, .edit = &wnd_title_edit,
+         .label = "Window title:", .x = marg, .y = edit_height*3 + 4*marg},
+        {.type = RuleFieldType::wnd_exe, .edit = &wnd_exe_edit,
+         .label = "Exe path:", .x = marg, .y = edit_height*4 + 5*marg},
+        {.type = RuleFieldType::monitor, .select = &monitor_select,
+         .x = marg, .y = edit_height*6 + 7*marg},
+        {.type = RuleFieldType::coords, .edit = &x_edit, .label = "X:",
+         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
+         .horizontal_pos = 0},
+        {.type = RuleFieldType::coords, .edit = &y_edit, .label = "Y:",
+         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
+         .horizontal_pos = 1},
+        {.type = RuleFieldType::coords, .edit = &w_edit, .label = "W:",
+         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
+         .horizontal_pos = 2},
+        {.type = RuleFieldType::coords, .edit = &h_edit, .label = "H:",
+         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
+         .horizontal_pos = 3}
     };
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
@@ -65,11 +74,15 @@ protected:
     void disable_events();
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     WndCoordinates get_coords();
+    void set_coords(const WndCoordinates& coords);
+    void populate_monitor_select();
+    void set_coords_by_selected_monitor(int selected);
+    void change_monitor_select_if_coords_differ(const WndCoordinates& coords);
     // Positioning
     int y = 0;
     // TODO(plu5): Calculate dynamically with adjustments depending on the
     // actual size of things and font sizes which may alter layout
-    int useful_height = 175; // Full height for scrolling
+    int useful_height = 206; // Full height for scrolling
     WndCoordinates calculate_field_geometry(RuleField field);
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,

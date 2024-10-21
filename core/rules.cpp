@@ -26,11 +26,8 @@ RuleFieldData Rule::get(RuleFieldType field) const {
     case RuleFieldType::coords:
         data.coords = coords;
         break;
-    case RuleFieldType::by_monitor:
-        data.boolean = by_monitor;
-        break;
     case RuleFieldType::monitor:
-        data.index = monitor;
+        data.num = monitor;
         break;
     }
     return data;
@@ -59,11 +56,8 @@ void Rule::set(const RuleFieldChange& change) {
     case RuleFieldType::coords:
         coords = change.data.coords;
         break;
-    case RuleFieldType::by_monitor:
-        by_monitor = change.data.boolean;
-        break;
     case RuleFieldType::monitor:
-        monitor = change.data.index;
+        monitor = change.data.num;
         break;
     }
 }
@@ -96,7 +90,7 @@ std::string RulesModel::next_untitled_name(std::string base, std::string sep) {
 
 Rule& RulesModel::create_rule() {
     auto r = Rule({.id = uid(), .name = next_untitled_name()});
-    if (r.by_monitor) r.coords.by_monitor(r.monitor - 1);
+    if (r.monitor > 0) r.coords.by_monitor(r.monitor - 1);
     rules.push_back(r);
     return rules[rules.size() - 1];
 }

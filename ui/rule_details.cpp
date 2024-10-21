@@ -6,6 +6,8 @@
 #include "utility/win32_painting.h" // paint_text, paint_rect
 #include "utility/string_conversion.h" // string_to_wstring, wstring_to_string
 #include "core/coords.h" // WndCoordinates
+#include "utility/monitors.h" // Monitors
+#include "utility/string_concat.h" // concat
 
 void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     parent_hwnd = parent_hwnd_;
@@ -25,10 +27,44 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     for (auto& field : fields) {
         WndCoordinates fgeom = calculate_field_geometry(field);
-        field.edit->initialise
-            (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
-             field.label, label_foreground, field.label_width);
+        if (field.edit) {
+            field.edit->initialise
+                (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
+                 field.label, label_foreground, field.label_width);
+        } else if (field.select) {
+            field.select->initialise
+                (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h);
+        }
     }
+    populate_monitor_select();
+}
+
+void RuleDetails::populate_monitor_select() {
+    monitor_select.add_option("Custom coordinates");
+    Monitors monitors;
+    for (size_t i = 0; i < monitors.rects.size(); i++) {
+        std::string s = concat
+            ("Monitor ", std::to_string(i+1), " fullscreen coordinates");
+        monitor_select.add_option(s);
+    }
+    
+}
+
+void RuleDetails::set_coords_by_selected_monitor(int selected) {
+    if (selected) {
+        WndCoordinates coords {};
+        coords.by_monitor(selected - 1);
+        set_coords(coords);
+    }
+}
+
+void RuleDetails::change_monitor_select_if_coords_differ
+(const WndCoordinates& coords) {
+    auto selected = monitor_select.selected();
+    if (not selected) return; // Custom coordinates
+    WndCoordinates monitor_coords {};
+    monitor_coords.by_monitor(selected - 1);
+    if (coords != monitor_coords) monitor_select.select(0);
 }
 
 WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
@@ -46,9 +82,13 @@ void RuleDetails::adjust_size() {
     SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y, SWP_NOMOVE);
     for (auto& field : fields) {
         auto fgeom = calculate_field_geometry(field);
-        field.edit->resize_width(fgeom.w);
-        if (field.x == dynamic or field.y == dynamic)
-            field.edit->reposition(fgeom.x, fgeom.y); 
+        if (field.edit) {
+            field.edit->resize_width(fgeom.w);
+            if (field.x == dynamic or field.y == dynamic)
+                field.edit->reposition(fgeom.x, fgeom.y); 
+        } else if (field.select) {
+            field.select->resize_width(fgeom.w);
+        }
     }
 }
 
@@ -68,8 +108,10 @@ void RuleDetails::populate(const Rule& rule) {
             field.edit->populate
                 (std::to_string(rule.get(field.type).coords[i]));
             i += 1;
-        } else {
+        } else if (field.edit) {
             field.edit->populate(rule.get(field.type).str);
+        } else if (field.type == RuleFieldType::monitor) {
+            monitor_select.select(rule.get(field.type).num);
         }
     }
     enable_events();
@@ -77,16 +119,19 @@ void RuleDetails::populate(const Rule& rule) {
 
 void RuleDetails::clear_and_disable() {
     disable_events();
-    for (auto& field : fields) field.edit->clear_and_disable();
+    for (auto& field : fields) {
+        if (field.edit) field.edit->clear_and_disable();
+        else if (field.select) field.select->clear_and_disable();
+    }
     enable_events();
 }
 
 WndCoordinates RuleDetails::get_coords() {
     WndCoordinates coords {};
     auto i = 0;
-    for (auto& edit : {x_edit, y_edit, w_edit, h_edit}) {
+    for (auto* edit : {&x_edit, &y_edit, &w_edit, &h_edit}) {
         try {
-            coords[i] = std::stoi(edit.text());
+            coords[i] = std::stoi(edit->text());
         } catch (std::invalid_argument&) { // leave as 0
         } catch (std::out_of_range&) {     // leave as 0
         }
@@ -95,17 +140,36 @@ WndCoordinates RuleDetails::get_coords() {
     return coords;
 }
 
+void RuleDetails::set_coords(const WndCoordinates& coords) {
+    auto i = 0;
+    for (auto* edit : {&x_edit, &y_edit, &w_edit, &h_edit}) {
+        edit->populate(std::to_string(coords[i]));
+        i += 1;
+    }
+}
+
 RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     if (!events_enabled) return {};
     auto hwnd_ = reinterpret_cast<HWND>(lp);
     if (HIWORD(wp) == EN_CHANGE) {
         for (auto& field : fields) {
-            if (hwnd_ == field.edit->hwnd) {
+            if (field.edit and hwnd_ == field.edit->hwnd) {
                 if (field.type == RuleFieldType::coords) {
-                    return {field.type, {.coords = get_coords()}}; 
+                    auto coords = get_coords();
+                    change_monitor_select_if_coords_differ(coords);
+                    return {field.type, {.coords = coords}}; 
                 } else {
                     return {field.type, {.str = field.edit->text()}};
                 }
+            }
+        }
+    } else if (HIWORD(wp) == CBN_SELCHANGE) {
+        for (auto& field : fields) {
+            if (field.select and hwnd_ == field.select->hwnd) {
+                auto selected = field.select->selected();
+                if (field.type == RuleFieldType::monitor)
+                    set_coords_by_selected_monitor(selected);
+                return {field.type, {.num = selected}};
             }
         }
     }
@@ -216,7 +280,7 @@ void RuleDetails::paint() {
     auto size = get_size(hwnd);
     paint_rect(dc2.h, &size.rect, Theme::bg);
 
-    for (auto& field : fields) field.edit->paint(dc2.h);
+    for (auto& field : fields) if (field.edit) field.edit->paint(dc2.h);
     paint_section_header(dc2.h, 3, selectors_label);
     paint_section_header(dc2.h, 5, geometry_label);
 
