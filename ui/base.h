@@ -1,8 +1,9 @@
 #pragma once
 
-#include "constants.h"
-#include "resource.h"
-#include "core/coords.h"
+#include "constants.h" // ID::wname
+#include "resource.h" // IDI_MWIN, IDC_MWIN
+#include "core/coords.h" // WndCoordinates
+#include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include <Windows.h>
 
 class Window {
@@ -10,7 +11,7 @@ public:
     HINSTANCE hinst;
     std::wstring title;
     std::wstring class_name;
-    HWND hwnd = 0;
+    HWND hwnd = NULL;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     ~Window() {DestroyWindow(hwnd);}
@@ -19,6 +20,13 @@ protected:
     (std::wstring title, std::wstring class_name, HINSTANCE hinst) :
         title(title), class_name(class_name), hinst(hinst) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
+    // Painting & double-buffering
+    HDC hdc1 = NULL;
+    CompatDc dc2;
+    CompatBitmap bmp;
+    void setup_paint_buffers();
+    virtual void paint_bg(HDC hdc);
+    virtual void paint();
 };
 
 template<typename T>

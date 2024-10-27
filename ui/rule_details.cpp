@@ -247,7 +247,6 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_SIZE:
         adjust_scrollinfo(HIWORD(lp));
-        setup_paint_buffers();
         break;
 
     case WM_VSCROLL:
@@ -260,10 +259,6 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_COMMAND:
         PostMessage(parent_hwnd, msg, wp, lp);
-        break;
-
-    case WM_PAINT:
-        paint();
         break;
     }
     return super::proc(msg, wp, lp);
@@ -298,27 +293,12 @@ void RuleDetails::vscroll(WPARAM wp) {
     adjust_scrollinfo(pos, false);
 }
 
-void RuleDetails::setup_paint_buffers() {
-    hdc1 = GetDC(hwnd);
-    auto size = get_size(hwnd);
-    bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
-    ReleaseDC(hwnd, hdc1);
-}
-
 void RuleDetails::paint() {
-    PAINTSTRUCT ps;
-    auto size = get_size(hwnd);
-    paint_rect(dc2.h, Theme::bg, &size.rect);
-
     for (auto& field : fields) if (field.edit) field.edit->paint(dc2.h);
     paint_section_header(dc2.h, 3, selectors_label);
     paint_section_header(dc2.h, 5, geometry_label);
 
-    hdc1 = BeginPaint(hwnd, &ps);
-    BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
-    EndPaint(hwnd, &ps);
+    super::paint();
 }
 
 void RuleDetails::paint_section_header

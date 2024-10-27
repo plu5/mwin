@@ -99,12 +99,8 @@ protected:
     void adjust_scrollinfo(int height, bool range=true);
     void vscroll_by_mousewheel(WPARAM wp);
     void vscroll(WPARAM wp);
-    // Painting & double-buffering
-    HDC hdc1 = NULL;
-    CompatDc dc2;
-    CompatBitmap bmp;
-    void setup_paint_buffers();
-    void paint();
+    // Painting
+    void paint() override;
     void paint_section_header
     (HDC hdc, size_t vertical_order_position, const std::wstring& label);
     int label_foreground = Theme::fg;
