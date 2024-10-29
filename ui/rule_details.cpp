@@ -297,6 +297,7 @@ void RuleDetails::paint() {
     for (auto& field : fields) if (field.edit) field.edit->paint(dc2.h);
     paint_section_header(dc2.h, 3, selectors_label);
     paint_section_header(dc2.h, 5, geometry_label);
+    paint_section_header(dc2.h, 8, modifiers_label);
 
     super::paint();
 }
