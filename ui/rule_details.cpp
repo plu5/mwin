@@ -1,14 +1,14 @@
 #include "ui/rule_details.h"
 #include <windowsx.h> // Edit_SetText, Edit_GetTextLength, Edit_GetText
 #include "plog/Log.h"
-#include "utility/win32_casts.h" // hmenu_cast
 #include "utility/win32_geometry.h" // get_size, get_rect
-#include "utility/win32_painting.h" // paint_text, paint_rect
+#include "utility/win32_painting.h" // paint_text, paint_rect, ...
 #include "utility/string_conversion.h" // string_to_wstring, wstring_to_string
 #include "core/coords.h" // WndCoordinates
 #include "utility/monitors.h" // Monitors
 #include "utility/string_concat.h" // concat
 #include "ui/button.h" // create_btn
+#include "ui/tristate.h" // create_trackbar
 
 void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     parent_hwnd = parent_hwnd_;
@@ -35,6 +35,10 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         } else if (field.select) {
             field.select->initialise
                 (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h);
+        } else if (field.tristate) {
+            field.tristate->initialise
+                (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
+                 field.label, label_foreground, field.label_width);
         }
     }
 
@@ -89,6 +93,11 @@ WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
     auto w = get_size(hwnd).w;
     auto i = field.horizontal_pos;
 
+    if (field.tristate) {
+        return {field.x, field.y, w - marg*2,
+            static_cast<int>(edit_height*1.5)};
+    }
+
     switch (field.type) {
     case RuleFieldType::coords:
         w = (w - 5*marg) / 4;
@@ -111,6 +120,8 @@ void RuleDetails::adjust_size() {
                 field.edit->reposition(fgeom.x, fgeom.y); 
         } else if (field.select) {
             field.select->resize_width(fgeom.w);
+        } else if (field.tristate) {
+            field.tristate->resize_width(fgeom.w);
         }
     }
 }
@@ -137,6 +148,8 @@ void RuleDetails::populate(const Rule& rule) {
             auto selected = rule.get(field.type).num;
             monitor_select.select(selected);
             set_identify_btn_state_by_selected_monitor(selected);
+        } else if (field.tristate) {
+            field.tristate->populate(rule.get(field.type).num);
         }
     }
     enable_events();
@@ -147,6 +160,7 @@ void RuleDetails::clear_and_disable() {
     for (auto& field : fields) {
         if (field.edit) field.edit->clear_and_disable();
         else if (field.select) field.select->clear_and_disable();
+        else if (field.tristate) field.tristate->clear_and_disable();
     }
     set_identify_btn_state_by_selected_monitor(0);
     enable_events();
@@ -204,6 +218,22 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
         if (hwnd_ == identify_monitor_btn) {
             show_identify_indicator();
         }
+    } else if (HIWORD(wp) == WM_HSCROLL) { // trackbar or scrollbar
+        switch (LOWORD(wp)) {
+        case TB_BOTTOM:
+        case TB_ENDTRACK:
+        case TB_LINEDOWN:
+        case TB_LINEUP:
+        case TB_PAGEDOWN:
+        case TB_PAGEUP:
+        case TB_THUMBPOSITION:
+        case TB_TOP:
+            for (auto& field : fields) {
+                if (field.tristate and hwnd_ == field.tristate->hwnd) {
+                    return {field.type, {.num = field.tristate->pos()}};
+                }
+            }
+        }
     }
     return {};
 }
@@ -250,8 +280,14 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         break;
 
     case WM_VSCROLL:
-        vscroll(wp);
+        // lp : If the message is sent by a standard scroll bar, this parameter
+        // is NULL.
+        if (not lp) vscroll(wp);
         break;
+
+    case WM_HSCROLL:
+        if (lp) PostMessage(parent_hwnd, WM_COMMAND,
+                            MAKELONG(LOWORD(wp), msg), lp);
 
     case WM_MOUSEWHEEL:
         vscroll_by_mousewheel(wp);
@@ -294,10 +330,14 @@ void RuleDetails::vscroll(WPARAM wp) {
 }
 
 void RuleDetails::paint() {
-    for (auto& field : fields) if (field.edit) field.edit->paint(dc2.h);
+    for (auto& field : fields) {
+        if (field.edit) field.edit->paint(dc2.h);
+        if (field.tristate) field.tristate->paint(dc2.h);
+    }
     paint_section_header(dc2.h, 3, selectors_label);
     paint_section_header(dc2.h, 5, geometry_label);
     paint_section_header(dc2.h, 8, modifiers_label);
+    paint_modifier_tick_labels(dc2.h);
 
     super::paint();
 }
@@ -330,4 +370,20 @@ void RuleDetails::paint_section_header
     paint_rect(hdc, Theme::bg, &text_rect);
 
     paint_text(hdc, label, Theme::fg, &text_rect, &separator_font);
+}
+
+void RuleDetails::paint_modifier_tick_labels(HDC hdc) {
+    auto rect = get_relative_rect(borderless_tristate.hwnd, hwnd);
+    rect.top -= modifier_tick_labels_y_offset;
+
+    auto text_rect = rect;
+    paint_text(hdc, left_tick_label, Theme::fg, &text_rect);
+
+    text_rect = get_centred_text_rect
+        (hdc, mid_tick_label, &rect, nullptr, true, false);
+    paint_text(hdc, mid_tick_label, Theme::fg, &text_rect);
+
+    text_rect = get_centred_text_rect
+        (hdc, right_tick_label, &rect, nullptr, false, false, false, true);
+    paint_text(hdc, right_tick_label, Theme::fg, &text_rect);
 }

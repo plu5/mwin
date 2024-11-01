@@ -91,7 +91,7 @@ void MainWindow::finalise() {
 void MainWindow::notify(LPARAM lp) {
     if (not loaded) return;
     auto* nmh = reinterpret_cast<NMHDR*>(lp);
-    switch(nmh->code) {
+    switch (nmh->code) {
     case LVN_ITEMCHANGED:
         if (nmh->hwndFrom == rules_list.hwnd) {
             auto* nml = reinterpret_cast<NMLISTVIEW*>(nmh);

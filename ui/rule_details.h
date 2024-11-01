@@ -8,6 +8,7 @@
 #include "ui/select.h" // Select
 #include "ui/base.h" // Window, create_window
 #include "ui/identify_indicator.h" // IdentifyIndicator
+#include "ui/tristate.h" // Tristate
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include "constants.h" // Theme
 
@@ -15,6 +16,7 @@ struct RuleField {
     RuleFieldType type = RuleFieldType::none;
     Edit* edit = nullptr;
     Select* select = nullptr;
+    Tristate* tristate = nullptr;
     std::string label = "";
     int x = 0, y = 0, label_width = 90, horizontal_pos = 0;
 };
@@ -47,6 +49,7 @@ protected:
     HWND identify_monitor_btn = NULL;
     std::wstring identify_monitor_text = L"This is monitor ";
     IdentifyIndicator identify_indicator;
+    Tristate borderless_tristate;
     int marg = 5;
     int edit_height = 20;
     int btn_size = 25;
@@ -73,7 +76,9 @@ protected:
          .horizontal_pos = 2},
         {.type = RuleFieldType::coords, .edit = &h_edit, .label = "H:",
          .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
-         .horizontal_pos = 3}
+         .horizontal_pos = 3},
+        {.type = RuleFieldType::borderless, .tristate = &borderless_tristate,
+         .label = "Borderless:", .x = marg, .y = edit_height*9 + 13*marg} // 11
     };
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
@@ -110,4 +115,9 @@ protected:
     std::wstring geometry_label = L"GEOMETRY";
     std::wstring modifiers_label = L"MODIFIERS";
     Font separator_font;
+    void paint_modifier_tick_labels(HDC hdc);
+    std::wstring left_tick_label = L"Apply";
+    std::wstring mid_tick_label = L"As is";
+    std::wstring right_tick_label = L"Unapply";
+    int modifier_tick_labels_y_offset = 16;
 };

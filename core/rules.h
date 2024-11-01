@@ -4,7 +4,7 @@
 #include "core/coords.h"
 
 enum class RuleFieldType {none, id, enabled, name, commentary, wnd_title,
-    wnd_exe, coords, monitor};
+    wnd_exe, coords, monitor, borderless};
 
 struct RuleFieldData {
     std::string str;
@@ -27,12 +27,14 @@ struct Rule {
     std::string wnd_exe = "";
     WndCoordinates coords;
     int monitor = 1;
+    int borderless = 1;
     RuleFieldData get(RuleFieldType field) const;
     void set(const RuleFieldChange& change);
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT
-(Rule, id, enabled, name, commentary, wnd_title, wnd_exe, coords, monitor)
+(Rule, id, enabled, name, commentary, wnd_title, wnd_exe, coords, monitor,
+ borderless)
 
 class RulesModel {
  public:

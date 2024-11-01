@@ -154,6 +154,7 @@
     <ClInclude Include="ui\rules_list.h" />
     <ClInclude Include="ui\rule_details.h" />
     <ClInclude Include="ui\select.h" />
+    <ClInclude Include="ui\tristate.h" />
     <ClInclude Include="utility\console_output_support.h" />
     <ClInclude Include="utility\exe_path.h" />
     <ClInclude Include="utility\monitors.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="ui\rules_list.cpp" />
     <ClCompile Include="ui\rule_details.cpp" />
     <ClCompile Include="ui\select.cpp" />
+    <ClCompile Include="ui\tristate.cpp" />
     <ClCompile Include="utility\console_output_support.cpp" />
     <ClCompile Include="utility\exe_path.cpp" />
     <ClCompile Include="utility\monitors.cpp" />

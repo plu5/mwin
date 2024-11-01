@@ -116,13 +116,16 @@ inline int get_text_height
 
 inline RECT get_centred_text_rect
 (HDC hdc, const std::wstring& text, RECT* container, Font* font=nullptr,
- bool horizontally=true, bool vertically=true, bool bottom=false) {
+ bool horizontally=true, bool vertically=true, bool bottom=false,
+ bool right=false) {
     auto rect = get_text_rect(hdc, text, font);
+    OffsetRect(&rect, container->left, container->top);
     auto w = rect.right - rect.left;
     auto h = rect.bottom - rect.top;
     auto cw = container->right - container->left;
     auto ch = container->bottom - container->top;
     if (horizontally) OffsetRect(&rect, cw/2 - w/2, 0);
+    else if (right) OffsetRect(&rect, cw - w, 0);
     if (vertically) OffsetRect(&rect, 0, ch/2 - h/2);
     else if (bottom) OffsetRect(&rect, 0, ch - h);
     return rect;

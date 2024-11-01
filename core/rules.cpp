@@ -29,6 +29,9 @@ RuleFieldData Rule::get(RuleFieldType field) const {
     case RuleFieldType::monitor:
         data.num = monitor;
         break;
+    case RuleFieldType::borderless:
+        data.num = borderless;
+        break;
     }
     return data;
 }
@@ -58,6 +61,9 @@ void Rule::set(const RuleFieldChange& change) {
         break;
     case RuleFieldType::monitor:
         monitor = change.data.num;
+        break;
+    case RuleFieldType::borderless:
+        borderless = change.data.num;
         break;
     }
 }

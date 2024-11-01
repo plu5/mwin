@@ -1,5 +1,9 @@
+#pragma once
+
 #include <Windows.h>
 #include <uxtheme.h> // SetWindowTheme
+#include <string> // std::wstring
+#include "utility/win32_casts.h" // hmenu_cast
 
 inline HWND create_btn
 (std::wstring caption, int x, int y, int w, int h, int id,
