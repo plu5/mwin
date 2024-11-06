@@ -12,13 +12,14 @@ public:
     std::wstring title;
     std::wstring class_name;
     HWND hwnd = NULL;
+    Brush bg;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     ~Window() {DestroyWindow(hwnd);}
 protected:
     Window
     (std::wstring title, std::wstring class_name, HINSTANCE hinst) :
-        title(title), class_name(class_name), hinst(hinst) {};
+        title(title), class_name(class_name), hinst(hinst), bg(Theme::bg) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
     // Painting & double-buffering
     HDC hdc1 = NULL;
@@ -32,10 +33,11 @@ protected:
 template<typename T>
 HWND create_window
 (T& instance, HINSTANCE hinst, WndCoordinates* geometry=nullptr,
- int flags=WS_OVERLAPPEDWINDOW, HWND parent=nullptr, bool menu=true) {
+ int flags=WS_OVERLAPPEDWINDOW, HWND parent=nullptr, bool menu=true,
+ bool redraw_on_resize=false) {
     WNDCLASSEXW wcex {};
     wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
+    wcex.style          = redraw_on_resize ? (CS_HREDRAW | CS_VREDRAW) : 0;
     wcex.lpfnWndProc    = T::s_proc;
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
@@ -43,7 +45,7 @@ HWND create_window
     wcex.hIcon          = parent ? NULL :
         LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = NULL;
+    wcex.hbrBackground  = instance.bg.h;
     wcex.lpszMenuName   = (parent or not menu) ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance.class_name.data();
     wcex.hIconSm        = parent ? NULL :
@@ -79,11 +81,11 @@ template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst,
  WndCoordinates* geometry=nullptr, int flags=WS_OVERLAPPEDWINDOW,
- HWND parent=nullptr) {
+ HWND parent=nullptr, bool redraw_on_resize=false) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst));
     auto hwnd = create_window
-        (*instance.get(), hinst, geometry, flags, parent);
+        (*instance.get(), hinst, geometry, flags, parent, redraw_on_resize);
     if (!hwnd) return nullptr;
     return instance;
 }

@@ -17,14 +17,14 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     auto size = get_size(parent_hwnd);
     WndCoordinates geom = {0, y, size.w, size.h - y};
     hwnd = create_window<RuleDetails>
-        (*this, hinst, &geom, WS_CHILDWINDOW | WS_VISIBLE, parent_hwnd);
+        (*this, hinst, &geom,
+         WS_CHILDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+         parent_hwnd, false, true);
 
     // NOTE(plu5): For correct scrollbar at launch, have to have this here;
     // doesn't work in WM_CREATE. And have to do this before children get
     // initialised in order that they get correct geometry.
     adjust_scrollinfo(get_size(hwnd).h);
-
-    setup_paint_buffers();
 
     for (auto& field : fields) {
         WndCoordinates fgeom = calculate_field_geometry(field);

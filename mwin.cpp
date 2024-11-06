@@ -15,7 +15,8 @@ int APIENTRY wWinMain
     auto window = create_window<MainWindow>
         (load_wstr_resource(hinst, IDS_APP_TITLE),
          load_wstr_resource(hinst, IDC_MWIN),
-         hinst, nullptr);
+         hinst, nullptr,
+         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 
     // "If the function terminates before entering the message loop, it should
     // return zero."

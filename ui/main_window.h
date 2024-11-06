@@ -22,6 +22,7 @@ protected:
     static INT_PTR CALLBACK s_about_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM);
     void initialise();
+    void post_init();
     void finalise();
     void update_geometry();
     void save_geometry();

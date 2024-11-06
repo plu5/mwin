@@ -10,3 +10,7 @@ struct Theme {
     constexpr static const int bg = 0x00252526;
     constexpr static const int fg = 0x00DCDCDC;
 };
+
+struct UM { // custom message ids
+    constexpr static const int post_init = 32788;
+};

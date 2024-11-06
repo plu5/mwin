@@ -4,17 +4,22 @@
 #include "plog/Log.h"
 #include <windowsx.h> // Edit_GetSel, Edit_SetSel
 #include "utility/win32_geometry.h" // get_size
+#include "constants.h"
 
 LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_CREATE:
         initialise();
+        PostMessage(hwnd, UM::post_init, 0, 0);
         break;
 
     case WM_SIZE:
         rules_list.adjust_size();
         rule_details.adjust_size();
         break;
+
+    case UM::post_init:
+        post_init();
 
     case WM_COMMAND:
         rules_list.command(wp, lp);
@@ -54,7 +59,7 @@ INT_PTR CALLBACK MainWindow::s_about_proc
 
 void MainWindow::update_geometry() {
     const auto& g = config.window_geometry;
-    int x = 0, y = 0, w = 400, h = 400, flags = SWP_SHOWWINDOW;
+    int x = 0, y = 0, w = 400, h = 400, flags = 0;
     if (g.w && g.h) g.unpack(x, y, w, h);
     else flags |= SWP_NOMOVE;
     SetWindowPos(hwnd, NULL, x, y, w, h, flags);
@@ -77,6 +82,11 @@ void MainWindow::initialise() {
     rules_list.initialise(hwnd, hinst);
     rules_list.load(config.user_dir);
     rule_details.initialise(hwnd, rules_list.height);
+}
+
+void MainWindow::post_init() {
+    ShowWindow(hwnd, true);
+    UpdateWindow(hwnd);
     loaded = true;
     rules_list.select_rule(0);
 }

@@ -17,6 +17,19 @@ void set_trackbar_size(HWND hwnd, int size) {
                 static_cast<LPARAM>(0));
 }
 
+LRESULT CALLBACK trackbar_proc
+(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
+    switch (msg) {
+    case WM_ERASEBKGND:
+        return 1;
+
+    case WM_NCDESTROY:
+        RemoveWindowSubclass(hwnd, trackbar_proc, uid);
+        break;
+    }
+    return DefSubclassProc(hwnd, msg, wp, lp);
+}
+
 HWND create_trackbar
 (std::wstring caption, int x, int y, int w, int h, int id,
  HWND parent, HINSTANCE hinst, bool old_style, int size) {
@@ -27,6 +40,7 @@ HWND create_trackbar
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
     if (old_style) SetWindowTheme(hwnd, L" ", L" ");
     if (size > 0) set_trackbar_size(hwnd, size);
+    SetWindowSubclass(hwnd, trackbar_proc, static_cast<UINT_PTR>(-1), 0);
     return hwnd;
 }
 
