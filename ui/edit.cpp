@@ -109,7 +109,6 @@ void Edit::reposition(int x_, int y_) {
 }
 
 void Edit::paint(HDC hdc) {
-    auto parent_rect = get_rect(parent);
     auto rect = get_relative_rect(hwnd, parent);
     if (rect.top + (rect.bottom - rect.top) < 0) return; // not in view
     rect.top += label_top_offset;

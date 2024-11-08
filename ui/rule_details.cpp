@@ -101,7 +101,7 @@ WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
     switch (field.type) {
     case RuleFieldType::coords:
         w = (w - 5*marg) / 4;
-        return {(i+1)*marg + i*w, field.y, w, edit_height};
+        return {(i+1)*marg + i*w, field.y - scroll_y, w, edit_height};
     case RuleFieldType::monitor:
         return {field.x, field.y, w - marg*2 - btn_size, edit_height};
     default:
@@ -117,7 +117,7 @@ void RuleDetails::adjust_size() {
         if (field.edit) {
             field.edit->resize_width(fgeom.w);
             if (field.x == dynamic or field.y == dynamic)
-                field.edit->reposition(fgeom.x, fgeom.y); 
+                field.edit->reposition(fgeom.x, fgeom.y);
         } else if (field.select) {
             field.select->resize_width(fgeom.w);
         } else if (field.tristate) {
