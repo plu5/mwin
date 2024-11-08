@@ -50,6 +50,7 @@ protected:
     std::wstring identify_monitor_text = L"This is monitor ";
     IdentifyIndicator identify_indicator;
     Tristate borderless_tristate;
+    Tristate alwaysontop_tristate;
     int marg = 5;
     int edit_height = 20;
     int btn_size = 25;
@@ -78,7 +79,9 @@ protected:
          .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
          .horizontal_pos = 3},
         {.type = RuleFieldType::borderless, .tristate = &borderless_tristate,
-         .label = "Borderless:", .x = marg, .y = edit_height*9 + 13*marg} // 11
+         .label = "Borderless:", .x = marg, .y = edit_height*9 + 13*marg},
+        {.type = RuleFieldType::alwaysontop, .tristate = &alwaysontop_tristate,
+         .label = "AlwaysOnTop:", .x = marg, .y = edit_height*10 + 15*marg},
     };
     HINSTANCE hinst = NULL;
     bool events_enabled = false;
