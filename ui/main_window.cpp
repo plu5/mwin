@@ -13,6 +13,13 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
         PostMessage(hwnd, UM::post_init, 0, 0);
         break;
 
+    case WM_GETMINMAXINFO: {
+        auto pmmi = reinterpret_cast<PMINMAXINFO>(lp);
+        pmmi->ptMinTrackSize.x = min_w;
+        pmmi->ptMinTrackSize.y = min_h;
+        break;
+    }
+
     case WM_SIZE:
         rules_list.adjust_size();
         rule_details.adjust_size();

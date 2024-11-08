@@ -15,6 +15,7 @@ public:
           rule_details(L"RuleDetails", L"RuleDetails", hinst) {};
 protected:
     bool loaded = false;
+    int min_w = 275, min_h = 150;
     Config config;
     RulesList rules_list;
     RuleDetails rule_details;
