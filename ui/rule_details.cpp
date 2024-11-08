@@ -38,7 +38,7 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         } else if (field.tristate) {
             field.tristate->initialise
                 (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
-                 field.label, label_foreground, field.label_width);
+                 field.label, label_foreground, field.label_width, Theme::bg);
         }
     }
 

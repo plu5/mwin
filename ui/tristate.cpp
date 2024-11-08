@@ -4,6 +4,9 @@
 #include "utility/win32_geometry.h" // get_rect, get_relative_rect
 #include "utility/string_conversion.h" // string_to_wstring
 
+#pragma comment(lib, "msimg32.lib")
+#include <wingdi.h> // AlphaBlend
+
 void set_trackbar_range(HWND hwnd, int min, int max, bool redraw=true) {
     SendMessage(hwnd, TBM_SETRANGE,
                 static_cast<WPARAM>(redraw),
@@ -83,7 +86,13 @@ LRESULT Tristate::proc
             draw_ticks_at(dc2.h, tick_x, tick_width, tick_height,
                       tick_y_offset, size.rect.bottom, label_foreground);
 
-        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        if (disabled) {
+            paint_rect(hdc1, bg, &size.rect);
+            AlphaBlend(hdc1, 0, 0, size.w, size.h, dc2.h,
+                       0, 0, size.w, size.h, bf);
+        } else {
+            BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        }
         EndPaint(hwnd, &ps);
         return 1;
     }
@@ -93,7 +102,7 @@ LRESULT Tristate::proc
 
 void Tristate::initialise
 (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
- const std::string& label_, int label_foreground_, int label_width_) {
+ const std::string& label_, int label_foreground_, int label_width_, int bg_) {
     parent = parent_;
     hinst = hinst_;
     x = x_;
@@ -104,6 +113,12 @@ void Tristate::initialise
     wlabel = string_to_wstring(label);
     label_foreground = label_foreground_;
     label_width = label_width_;
+    bg = bg_;
+
+    bf.BlendOp = AC_SRC_OVER;
+    bf.BlendFlags = 0;
+    bf.SourceConstantAlpha = 50;
+    bf.AlphaFormat = 0;
 
     hwnd = CreateWindow
         (TRACKBAR_CLASS, L"",
@@ -144,9 +159,11 @@ void Tristate::resize_width(int w_) {
 
 void Tristate::clear_and_disable() {
     EnableWindow(hwnd, false);
+    disabled = true;
 }
 
 void Tristate::populate(int pos_) {
     EnableWindow(hwnd, true);
+    disabled = false;
     SendMessage(hwnd, TBM_SETPOS, true, pos_);
 }
