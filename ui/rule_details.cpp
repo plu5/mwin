@@ -296,6 +296,9 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
     case WM_COMMAND:
         PostMessage(parent_hwnd, msg, wp, lp);
         break;
+
+    case WM_CTLCOLORSTATIC:
+        return reinterpret_cast<LRESULT>(bg.h);
     }
     return super::proc(msg, wp, lp);
 }

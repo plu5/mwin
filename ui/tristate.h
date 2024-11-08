@@ -2,12 +2,7 @@
 
 #include <Windows.h>
 #include <string> // std::wstring
-
-void set_trackbar_range(HWND hwnd, int min, int max, bool redraw=true);
-void set_trackbar_size(HWND hwnd, int size);
-HWND create_trackbar
-(std::wstring caption, int x, int y, int w, int h, int id,
- HWND parent, HINSTANCE hinst, bool old_style=true, int size=0);
+#include "utility/win32_painting.h" // CompatDc, CompatBitmap
 
 class Tristate {
 public:
@@ -23,6 +18,8 @@ public:
     void paint(HDC hdc);
     void clear_and_disable();
     void populate(int pos_);
+    static LRESULT CALLBACK s_proc
+    (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR);
 protected:
     int x = 0, y = 0, w = 0, h = 0;
     HWND parent = 0;
@@ -30,4 +27,11 @@ protected:
     std::string label;
     std::wstring wlabel;
     int label_foreground = RGB(200, 200, 200);
+    int tick_width = 1, tick_height = 8, tick_y_offset = 4;
+    LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
+    // Painting & double-buffering
+    HDC hdc1 = NULL;
+    CompatDc dc2;
+    CompatBitmap bmp;
+    void setup_paint_buffers();
 };
