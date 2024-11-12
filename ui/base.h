@@ -13,13 +13,15 @@ public:
     std::wstring class_name;
     HWND hwnd = NULL;
     Brush bg;
+    Icon icon;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     ~Window() {DestroyWindow(hwnd);}
 protected:
     Window
     (std::wstring title, std::wstring class_name, HINSTANCE hinst) :
-        title(title), class_name(class_name), hinst(hinst), bg(Theme::bg) {};
+        title(title), class_name(class_name), hinst(hinst), bg(Theme::bg),
+        icon(hinst, IDI_MWIN) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
     // Painting & double-buffering
     HDC hdc1 = NULL;
@@ -42,14 +44,12 @@ HWND create_window
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hinst;
-    wcex.hIcon          = parent ? NULL :
-        LoadIcon(hinst, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.hIcon          = instance.icon.h;
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = instance.bg.h;
     wcex.lpszMenuName   = (parent or not menu) ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance.class_name.data();
-    wcex.hIconSm        = parent ? NULL :
-        LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MWIN));
+    wcex.hIconSm        = instance.icon.h;
 
     if (RegisterClassExW(&wcex) == 0) {
         std::wstring wstrMessage = L"create_window: RegisterClassExW failed.\n\
@@ -81,11 +81,11 @@ template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst,
  WndCoordinates* geometry=nullptr, int flags=WS_OVERLAPPEDWINDOW,
- HWND parent=nullptr, bool redraw_on_resize=false) {
+ HWND parent=nullptr) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst));
     auto hwnd = create_window
-        (*instance.get(), hinst, geometry, flags, parent, redraw_on_resize);
+        (*instance.get(), hinst, geometry, flags, parent);
     if (!hwnd) return nullptr;
     return instance;
 }

@@ -47,6 +47,22 @@ struct CompatBitmap {
     inline void delete_if_initialised() {if (initialised) DeleteObject(h);}
 };
 
+// LoadIcon loads a "shared icon" which doesn't need to be deleted.
+// There is also no issue with calling it several times; if already loaded, it
+// retrieves a handle to the existing resource.
+// So there is not really a need to wrap it but I already did so nvm...
+struct Icon {
+    HICON h = NULL;
+
+    inline void initialise(HINSTANCE hinst, int id) {
+        h = LoadIcon(hinst, MAKEINTRESOURCE(id));
+    }
+
+    inline Icon() {}
+    inline Icon(HINSTANCE hinst, int id)
+    {initialise(hinst, id);}
+};
+
 struct Font {
     HFONT h = NULL;
     bool initialised = false;

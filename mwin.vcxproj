@@ -145,16 +145,19 @@
     <ClInclude Include="core\coords.h" />
     <ClInclude Include="core\rules.h" />
     <ClInclude Include="core\save.h" />
+    <ClInclude Include="core\wins.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ui\base.h" />
     <ClInclude Include="ui\button.h" />
     <ClInclude Include="ui\edit.h" />
+    <ClInclude Include="ui\grab_dialog.h" />
     <ClInclude Include="ui\identify_indicator.h" />
     <ClInclude Include="ui\main_window.h" />
     <ClInclude Include="ui\rules_list.h" />
     <ClInclude Include="ui\rule_details.h" />
     <ClInclude Include="ui\select.h" />
     <ClInclude Include="ui\tristate.h" />
+    <ClInclude Include="ui\windows_list.h" />
     <ClInclude Include="utility\console_output_support.h" />
     <ClInclude Include="utility\exe_path.h" />
     <ClInclude Include="utility\monitors.h" />
@@ -175,15 +178,18 @@
     <ClCompile Include="core\coords.cpp" />
     <ClCompile Include="core\rules.cpp" />
     <ClCompile Include="core\save.cpp" />
+    <ClCompile Include="core\wins.cpp" />
     <ClCompile Include="mwin.cpp" />
     <ClCompile Include="ui\base.cpp" />
     <ClCompile Include="ui\edit.cpp" />
+    <ClCompile Include="ui\grab_dialog.cpp" />
     <ClCompile Include="ui\identify_indicator.cpp" />
     <ClCompile Include="ui\main_window.cpp" />
     <ClCompile Include="ui\rules_list.cpp" />
     <ClCompile Include="ui\rule_details.cpp" />
     <ClCompile Include="ui\select.cpp" />
     <ClCompile Include="ui\tristate.cpp" />
+    <ClCompile Include="ui\windows_list.cpp" />
     <ClCompile Include="utility\console_output_support.cpp" />
     <ClCompile Include="utility\exe_path.cpp" />
     <ClCompile Include="utility\monitors.cpp" />
@@ -198,7 +204,9 @@
     <ResourceCompile Include="mwin.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="refresh.ico" />
     <Image Include="mwin.ico" />
+    <Image Include="picker.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

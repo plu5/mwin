@@ -5,6 +5,7 @@
 #include "utility/string_conversion.h" // string_to_wstring, wstring_to_string
 #include "utility/win32_geometry.h" // get_size, get_rect, get_relative_rect
 #include "utility/win32_casts.h" // hmenu_cast
+#include "utility/win32_text.h" // get_window_text
 
 HWND create_edit
 (std::wstring caption, int x, int y, int w, int h, int id,
@@ -13,15 +14,6 @@ HWND create_edit
         (WC_EDIT, caption.data(),
          WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
-}
-
-std::string get_text(HWND hwnd) {
-    auto length_with_terminator = GetWindowTextLength(hwnd) + 1;
-    std::wstring text(length_with_terminator, '\0');
-    auto length_copied = GetWindowText(hwnd, text.data(), length_with_terminator);
-    text.resize(length_copied); // get rid of excess \0
-    auto res = wstring_to_string(text);
-    return res;
 }
 
 const auto del_word_regex = std::regex("(\\w*[ ]?|[^ \\w]*[ ]?|[ ]*)$");
@@ -48,7 +40,7 @@ LRESULT CALLBACK edit_proc
             break;
         case 127: // Ctrl+Backspace
             auto sel = Edit_GetSel(hwnd);
-            auto text = get_text(hwnd);
+            auto text = get_window_text(hwnd);
             auto pre_caret = text.substr(0, LOWORD(sel));
             auto post_caret = text.substr(LOWORD(sel));
             std::smatch match;
@@ -92,7 +84,7 @@ void Edit::initialise
 }
 
 std::string Edit::text() const {
-    return get_text(hwnd);
+    return get_window_text(hwnd);
 }
 
 void Edit::resize_width(int w_) {

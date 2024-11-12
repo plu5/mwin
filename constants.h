@@ -13,4 +13,5 @@ struct Theme {
 
 struct UM { // custom message ids
     constexpr static const int post_init = 32788;
+    constexpr static const int grabbed = 32789;
 };

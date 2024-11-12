@@ -37,6 +37,10 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
         notify(lp);
         break;
 
+    case UM::grabbed:
+        rule_details.post_grab();
+        break;
+
     case WM_CLOSE:
         finalise();
         break;

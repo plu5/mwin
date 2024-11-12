@@ -7,9 +7,10 @@
 #include "ui/edit.h" // Edit
 #include "ui/select.h" // Select
 #include "ui/base.h" // Window, create_window
+#include "ui/grab_dialog.h" // GrabDialog
 #include "ui/identify_indicator.h" // IdentifyIndicator
 #include "ui/tristate.h" // Tristate
-#include "utility/win32_painting.h" // CompatDc, CompatBitmap
+#include "utility/win32_painting.h" // CompatDc, CompatBitmap, Icon
 #include "constants.h" // Theme
 
 struct RuleField {
@@ -27,14 +28,17 @@ public:
     HWND hwnd = NULL;
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
-        : Window(title, class_name, hinst),
-          identify_indicator(L"Identify monitor", L"IdentifyIndicator",
-                             hinst) {};
+        : Window(title, class_name, hinst), grab_icon(hinst, IDI_PICKER),
+          identify_indicator
+          (L"Identify monitor", L"mwinIdentifyIndicator", hinst),
+          grab_dialog(L"Grab dialog", L"mwinGrabDialog", hinst)
+    {};
     void initialise(HWND parent_hwnd_, int y_);
     void adjust_size();
     void populate(const Rule& rule);
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
+    void post_grab();
 protected:
     HWND parent_hwnd = NULL;
     Edit rule_name_edit;
@@ -45,6 +49,10 @@ protected:
     Edit y_edit;
     Edit w_edit;
     Edit h_edit;
+    HWND grab_btn = NULL;
+    int grab_btn_size = 21;
+    Icon grab_icon;
+    GrabDialog grab_dialog;
     Select monitor_select;
     HWND identify_monitor_btn = NULL;
     std::wstring identify_monitor_text = L"This is monitor ";
@@ -83,11 +91,11 @@ protected:
         {.type = RuleFieldType::alwaysontop, .tristate = &alwaysontop_tristate,
          .label = "AlwaysOnTop:", .x = marg, .y = edit_height*10 + 15*marg},
     };
-    HINSTANCE hinst = NULL;
     bool events_enabled = false;
     void enable_events();
     void disable_events();
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
+    void show_grab_dialog();
     WndCoordinates get_coords();
     void set_coords(const WndCoordinates& coords);
     void populate_monitor_select();

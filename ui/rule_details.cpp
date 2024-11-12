@@ -44,8 +44,28 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     identify_monitor_btn = create_btn(L"?", marg, monitor_select.y,
                                       btn_size, btn_size, -1, hwnd, hinst);
+
+    grab_btn = create_btn(L"", 130, 55, grab_btn_size, grab_btn_size, -1, hwnd,
+                          hinst, true, WS_VISIBLE | BS_ICON, grab_icon.h);
+    grab_dialog.initialise(parent_hwnd, label_foreground);
     
     populate_monitor_select();
+}
+
+void RuleDetails::show_grab_dialog() {
+    auto s = get_size(parent_hwnd, false);
+    auto x_ = s.rect.left + s.w/2 - grab_dialog.w/2;
+    auto y_ = s.rect.top + s.h/2 - grab_dialog.h/2;
+    grab_dialog.show(x_, y_);
+}
+
+void RuleDetails::post_grab() {
+    if (grab_dialog.data.wnd_title)
+        wnd_title_edit.populate(grab_dialog.data.wnd_title.value());
+    if (grab_dialog.data.wnd_exe)
+        wnd_exe_edit.populate(grab_dialog.data.wnd_exe.value());
+    if (grab_dialog.data.geometry)
+        set_coords(grab_dialog.data.geometry.value());
 }
 
 void RuleDetails::populate_monitor_select() {
@@ -215,7 +235,9 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
             }
         }
     } else if (HIWORD(wp) == BN_CLICKED) { // button
-        if (hwnd_ == identify_monitor_btn) {
+        if (hwnd_ == grab_btn) {
+            show_grab_dialog();
+        } if (hwnd_ == identify_monitor_btn) {
             show_identify_indicator();
         }
     } else if (HIWORD(wp) == WM_HSCROLL) { // trackbar or scrollbar
