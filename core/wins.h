@@ -8,7 +8,8 @@
 struct OpenWindow {
     std::string title = "";
     std::string path = "";
-    HWND hwnd;
+    HWND hwnd = NULL;
+    bool access_denied = false;
 };
 
 struct OpenWindows {
@@ -19,7 +20,7 @@ struct OpenWindows {
 
     bool should_exclude(const std::string& str);
     std::string get_title(HWND hwnd);
-    std::string get_path(HWND hwnd);
+    std::string get_path(HWND hwnd, bool* access_denied=nullptr);
     void refresh();
     HWND get_matching_hwnd(std::string title="", std::string path="");
     int activate(std::string title, std::string path);
@@ -30,10 +31,13 @@ struct OpenWindows {
     static BOOL CALLBACK EnumWindows_callback(HWND hwnd, LPARAM lp) {
         auto t = reinterpret_cast<OpenWindows*>(lp); // this
         auto title = t->get_title(hwnd);
-        auto path = t->get_path(hwnd);
         bool valid = IsWindowVisible(hwnd) and not title.empty()
             and not t->should_exclude(title);
-        if (valid) t->list.push_back({title, path, hwnd});
+        if (valid) {
+            bool access_denied = false;
+            auto path = t->get_path(hwnd, &access_denied);
+            t->list.push_back({title, path, hwnd, access_denied});
+        }
         return true;
     }
 };

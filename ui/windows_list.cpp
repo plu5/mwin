@@ -1,9 +1,11 @@
 #include "ui/windows_list.h"
 #include <commctrl.h> // WC_LISTBOX
 #include <windowsx.h> // ListBox macros
+#include <plog/Log.h>
 #include "utility/win32_casts.h" // hmenu_cast
 #include "utility/win32_geometry.h" // get_size, get_rect
 #include "utility/string_conversion.h" // string_to_wstring
+#include "constants.h"
 
 HWND create_listbox
 (int x, int y, int w, int h, int id, HWND parent, HINSTANCE hinst,
@@ -69,10 +71,17 @@ LRESULT WindowsList::proc
 }
 
 WindowFieldData WindowsList::get(WindowFieldType type, size_t i) {
+    auto data = wins.list.at(i);
     if (type == WindowFieldType::title) {
-        return {.str = wins.list.at(i).title};
+        return {.str = data.title};
     } else if (type == WindowFieldType::path) {
-        return {.str = wins.list.at(i).path};
+        if (data.access_denied) {
+            LOG_INFO << "Unable to get exe path for window '" << data.title <<
+                "'. This can happen if its process is running with elevated"
+                     << " privileges and " << ID::name << " is not.";
+            return {.str = ""};
+        }
+        return {.str = data.path};
     } else if (type == WindowFieldType::geometry) {
         return {.coords = wins.get_coordinates(static_cast<int>(i))};
     }

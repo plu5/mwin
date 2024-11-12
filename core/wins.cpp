@@ -13,15 +13,22 @@ std::string OpenWindows::get_title(HWND hwnd) {
     return get_window_text(hwnd);
 }
 
-std::string OpenWindows::get_path(HWND hwnd) {
+std::string OpenWindows::get_path
+(HWND hwnd, bool* access_denied /* =nullptr */) {
     DWORD id;
     GetWindowThreadProcessId(hwnd, &id);
     DWORD size = MAX_PATH;
     auto path = new wchar_t[size];
     HANDLE hproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, id);
-    QueryFullProcessImageNameW(hproc, 0, path, &size);
-    CloseHandle(hproc);
-    return wchar_to_string(path);
+    if (hproc) {
+        QueryFullProcessImageNameW(hproc, 0, path, &size);
+        CloseHandle(hproc);
+        return wchar_to_string(path);
+    } else {
+        auto error = GetLastError();
+        if (access_denied and error == 5) *access_denied = true;
+        return {};
+    }
 }
 
 void OpenWindows::refresh() {

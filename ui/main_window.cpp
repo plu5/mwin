@@ -4,7 +4,7 @@
 #include "plog/Log.h"
 #include <windowsx.h> // Edit_GetSel, Edit_SetSel
 #include "utility/win32_geometry.h" // get_size
-#include "constants.h"
+#include "constants.h" // ID::name
 
 LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
