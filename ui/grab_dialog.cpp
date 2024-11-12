@@ -69,6 +69,13 @@ WndCoordinates GrabDialog::calculate_field_geometry(GrabField field) {
 
 LRESULT GrabDialog::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
+    case WM_GETMINMAXINFO: {
+        auto pmmi = reinterpret_cast<PMINMAXINFO>(lp);
+        pmmi->ptMinTrackSize.x = min_w;
+        pmmi->ptMinTrackSize.y = min_h;
+        break;
+    }
+
     case WM_CTLCOLORSTATIC: {
         auto hdc = reinterpret_cast<HDC>(wp);
         SetBkMode(hdc, TRANSPARENT);

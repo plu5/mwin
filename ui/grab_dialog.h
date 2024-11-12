@@ -57,6 +57,7 @@ public:
     void show(int x_, int y_);
     void hide();
 protected:
+    int min_w = 170, min_h = 185;
     HWND parent_hwnd = NULL;
     HWND wnd_title_cb = NULL;
     HWND wnd_exe_cb = NULL;
