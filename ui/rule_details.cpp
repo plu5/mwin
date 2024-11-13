@@ -45,9 +45,14 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     identify_monitor_btn = create_btn(L"?", marg, monitor_select.y,
                                       btn_size, btn_size, -1, hwnd, hinst);
 
-    grab_btn = create_btn(L"", 130, 55, grab_btn_size, grab_btn_size, -1, hwnd,
-                          hinst, true, WS_VISIBLE | BS_ICON, grab_icon.h);
+    grab_btn = create_btn
+        (L"", btn_size, 0, grab_btn_size, grab_btn_size, -1,
+         hwnd, hinst, true, WS_VISIBLE | BS_ICON, grab_icon.h);
     grab_dialog.initialise(parent_hwnd, label_foreground);
+
+    trigger_btn = create_btn
+        (L"", btn_size + grab_btn_size , 0, grab_btn_size, grab_btn_size, -1,
+         hwnd, hinst, true, WS_VISIBLE | BS_ICON, trigger_icon.h);
     
     populate_monitor_select();
 }
@@ -154,8 +159,18 @@ void RuleDetails::disable_events() {
     events_enabled = false;
 }
 
+void RuleDetails::trigger() {
+    if (!current_rule) {
+        LOG_INFO << "Unable to trigger unknown rule";
+    }
+    grab_dialog.windows_list.wins.reposition
+        (current_rule->wnd_title, current_rule->wnd_exe, current_rule->coords,
+         current_rule->borderless, current_rule->alwaysontop);
+}
+
 void RuleDetails::populate(const Rule& rule) {
     disable_events();
+    current_rule = &rule;
     auto i = 0;
     for (auto& field : fields) {
         if (field.type == RuleFieldType::coords) {
@@ -237,7 +252,9 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     } else if (HIWORD(wp) == BN_CLICKED) { // button
         if (hwnd_ == grab_btn) {
             show_grab_dialog();
-        } if (hwnd_ == identify_monitor_btn) {
+        } else if (hwnd_ == trigger_btn) {
+            trigger();
+        } else if (hwnd_ == identify_monitor_btn) {
             show_identify_indicator();
         }
     } else if (HIWORD(wp) == WM_HSCROLL) { // trackbar or scrollbar

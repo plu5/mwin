@@ -29,6 +29,7 @@ public:
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
         : Window(title, class_name, hinst), grab_icon(hinst, IDI_PICKER),
+          trigger_icon(hinst, IDI_PLAY),
           identify_indicator
           (L"Identify monitor", L"mwinIdentifyIndicator", hinst),
           grab_dialog(L"Grab dialog", L"mwinGrabDialog", hinst)
@@ -52,6 +53,8 @@ protected:
     HWND grab_btn = NULL;
     int grab_btn_size = 21;
     Icon grab_icon;
+    HWND trigger_btn = NULL;
+    Icon trigger_icon;
     GrabDialog grab_dialog;
     Select monitor_select;
     HWND identify_monitor_btn = NULL;
@@ -65,35 +68,42 @@ protected:
     int dynamic = -1;
     std::vector<RuleField> fields = {
         {.type = RuleFieldType::name, .edit = &rule_name_edit,
-         .label = "Rule name:", .x = marg, .y = marg},
+         .label = "Rule name:", .x = marg, .y = grab_btn_size + marg},
         {.type = RuleFieldType::commentary, .edit = &commentary_edit,
-         .label = "Commentary:", .x = marg, .y = edit_height + 2*marg},
+         .label = "Commentary:",
+         .x = marg, .y = grab_btn_size + edit_height + 2*marg},
         {.type = RuleFieldType::wnd_title, .edit = &wnd_title_edit,
-         .label = "Window title:", .x = marg, .y = edit_height*3 + 4*marg},
+         .label = "Window title:",
+         .x = marg, .y = grab_btn_size + edit_height*3 + 4*marg},
         {.type = RuleFieldType::wnd_exe, .edit = &wnd_exe_edit,
-         .label = "Exe path:", .x = marg, .y = edit_height*4 + 5*marg},
+         .label = "Exe path:", .x = marg,
+         .y = grab_btn_size + edit_height*4 + 5*marg},
         {.type = RuleFieldType::monitor, .select = &monitor_select,
-         .x = marg + btn_size, .y = edit_height*6 + 7*marg},
+         .x = marg + btn_size, .y = grab_btn_size + edit_height*6 + 7*marg},
         {.type = RuleFieldType::coords, .edit = &x_edit, .label = "X:",
-         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
-         .horizontal_pos = 0},
+         .x = dynamic, .y = grab_btn_size + edit_height*7 + 9*marg,
+         .label_width = 18, .horizontal_pos = 0},
         {.type = RuleFieldType::coords, .edit = &y_edit, .label = "Y:",
-         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
-         .horizontal_pos = 1},
+         .x = dynamic, .y = grab_btn_size + edit_height*7 + 9*marg,
+         .label_width = 18, .horizontal_pos = 1},
         {.type = RuleFieldType::coords, .edit = &w_edit, .label = "W:",
-         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
-         .horizontal_pos = 2},
+         .x = dynamic, .y = grab_btn_size + edit_height*7 + 9*marg,
+         .label_width = 18, .horizontal_pos = 2},
         {.type = RuleFieldType::coords, .edit = &h_edit, .label = "H:",
-         .x = dynamic, .y = edit_height*7 + 9*marg, .label_width = 18,
-         .horizontal_pos = 3},
+         .x = dynamic, .y = grab_btn_size + edit_height*7 + 9*marg,
+         .label_width = 18, .horizontal_pos = 3},
         {.type = RuleFieldType::borderless, .tristate = &borderless_tristate,
-         .label = "Borderless:", .x = marg, .y = edit_height*9 + 13*marg},
+         .label = "Borderless:",
+         .x = marg, .y = grab_btn_size + edit_height*9 + 13*marg},
         {.type = RuleFieldType::alwaysontop, .tristate = &alwaysontop_tristate,
-         .label = "AlwaysOnTop:", .x = marg, .y = edit_height*10 + 15*marg},
+         .label = "AlwaysOnTop:",
+         .x = marg, .y = grab_btn_size + edit_height*10 + 15*marg},
     };
     bool events_enabled = false;
+    const Rule* current_rule = nullptr;
     void enable_events();
     void disable_events();
+    void trigger();
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     void show_grab_dialog();
     WndCoordinates get_coords();

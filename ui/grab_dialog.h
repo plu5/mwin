@@ -49,6 +49,7 @@ public:
     HWND hwnd = NULL;
     int x = 0, y = 0, w = 250, h = 500;
     GrabData data;
+    WindowsList windows_list;
     GrabDialog
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
         : Window(title, class_name, hinst), refresh_icon(hinst, IDI_REFRESH)
@@ -64,7 +65,6 @@ protected:
     HWND geometry_cb = NULL;
     HWND refresh_btn = NULL;
     Icon refresh_icon;
-    WindowsList windows_list;
     HWND cancel_btn = NULL;
     HWND ok_btn = NULL;
     int marg = 5;

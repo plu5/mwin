@@ -204,6 +204,7 @@
     <ResourceCompile Include="mwin.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="play.ico" />
     <Image Include="refresh.ico" />
     <Image Include="mwin.ico" />
     <Image Include="picker.ico" />
