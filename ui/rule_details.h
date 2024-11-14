@@ -29,7 +29,7 @@ public:
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
         : Window(title, class_name, hinst), grab_icon(hinst, IDI_PICKER),
-          trigger_icon(hinst, IDI_PLAY),
+          trigger_icon(hinst, IDI_PLAY), edits_bg(Theme::edits_bg),
           identify_indicator
           (L"Identify monitor", L"mwinIdentifyIndicator", hinst),
           grab_dialog(L"Grab dialog", L"mwinGrabDialog", hinst)
@@ -42,6 +42,7 @@ public:
     void post_grab();
 protected:
     HWND parent_hwnd = NULL;
+    Brush edits_bg;
     Edit rule_name_edit;
     Edit commentary_edit;
     Edit wnd_title_edit;
