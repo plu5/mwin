@@ -1,7 +1,7 @@
 #pragma once
 
 #include "constants.h" // ID::wname
-#include "resource.h" // IDI_MWIN, IDC_MWIN
+#include "res/resource.h" // IDI_MWIN, IDC_MWIN
 #include "core/coords.h" // WndCoordinates
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap
 #include <Windows.h>

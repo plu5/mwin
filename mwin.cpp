@@ -1,5 +1,5 @@
 #include "Windows.h"
-#include "resource.h"
+#include "res/resource.h"
 #include "ui/base.h"
 #include "ui/main_window.h"
 #include "utility/safe_resources.h"

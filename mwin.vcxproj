@@ -146,7 +146,7 @@
     <ClInclude Include="core\rules.h" />
     <ClInclude Include="core\save.h" />
     <ClInclude Include="core\wins.h" />
-    <ClInclude Include="Resource.h" />
+    <ClInclude Include="res\resource.h" />
     <ClInclude Include="ui\base.h" />
     <ClInclude Include="ui\button.h" />
     <ClInclude Include="ui\edit.h" />
@@ -201,13 +201,13 @@
     <ClCompile Include="utility\word_wrap.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="mwin.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="mwin.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\mwin.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
