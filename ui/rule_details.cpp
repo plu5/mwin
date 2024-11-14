@@ -111,7 +111,10 @@ void RuleDetails::change_monitor_select_if_coords_differ
     if (not selected) return; // Custom coordinates
     WndCoordinates monitor_coords {};
     monitor_coords.by_monitor(selected - 1);
-    if (coords != monitor_coords) monitor_select.select(0);
+    if (coords != monitor_coords) {
+        monitor_select.select(0);
+        set_identify_btn_state_by_selected_monitor(0);
+    }
 }
 
 WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
