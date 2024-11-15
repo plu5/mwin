@@ -116,9 +116,7 @@ protected:
     void change_monitor_select_if_coords_differ(const WndCoordinates& coords);
     // Positioning
     int y = 0;
-    // TODO(plu5): Calculate dynamically with adjustments depending on the
-    // actual size of things and font sizes which may alter layout
-    int useful_height = 306; // Full height for scrolling
+    int useful_height = 500; // Full height for scrolling. Adjusts dynamically
     WndCoordinates calculate_field_geometry(RuleField field);
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,

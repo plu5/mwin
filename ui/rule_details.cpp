@@ -15,6 +15,10 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     parent_hwnd = parent_hwnd_;
     y = y_;
 
+    // Calculate useful height for scrolling
+    WndCoordinates lgeom = calculate_field_geometry(fields.back());
+    useful_height = lgeom.y + lgeom.h;
+
     auto size = get_size(parent_hwnd);
     WndCoordinates geom = {0, y, size.w, size.h - y};
     hwnd = create_window<RuleDetails>
