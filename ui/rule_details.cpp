@@ -343,9 +343,11 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         return reinterpret_cast<LRESULT>(bg.h);
 
     case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
         auto hdc = reinterpret_cast<HDC>(wp);
         SetBkMode(hdc, TRANSPARENT);
-        SetTextColor(hdc, label_foreground);
+        SetTextColor(hdc, Theme::fg);
+        SetBkColor(hdc, Theme::edits_bg);
         return reinterpret_cast<LRESULT>(edits_bg.h);
     }
     return super::proc(msg, wp, lp);

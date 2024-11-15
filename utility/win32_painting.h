@@ -96,12 +96,12 @@ struct Font {
 
 inline void paint_text
 (HDC hdc, const std::wstring& text, COLORREF foreground, RECT* rect,
- Font* font=nullptr) {
+ Font* font=nullptr, int flags=0) {
     HFONT prev_fn = NULL;
     if (font) prev_fn = static_cast<HFONT>(SelectObject(hdc, font->h));
     auto prev_bk = SetBkMode(hdc, TRANSPARENT);
     auto prev_cl = SetTextColor(hdc, foreground);
-    DrawTextW(hdc, text.data(), static_cast<int>(text.size()), rect, 0);
+    DrawTextW(hdc, text.data(), static_cast<int>(text.size()), rect, flags);
     SetBkMode(hdc, prev_bk);
     SetTextColor(hdc, prev_cl);
     if (font) SelectObject(hdc, prev_fn);
