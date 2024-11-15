@@ -7,7 +7,8 @@
 #include "core/rules.h" // RuleFieldType
 #include "core/coords.h" // WndCoordinates
 #include "ui/windows_list.h" // WindowsList
-#include "utility/win32_painting.h" // Icon
+#include "utility/win32_painting.h" // Icon, Brush
+#include "constants.h" // Theme
 
 struct GrabField {
     RuleFieldType type = RuleFieldType::none;
@@ -52,12 +53,14 @@ public:
     WindowsList windows_list;
     GrabDialog
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
-        : Window(title, class_name, hinst), refresh_icon(hinst, IDI_REFRESH)
+        : Window(title, class_name, hinst), refresh_icon(hinst, IDI_REFRESH),
+          list_bg(Theme::edits_bg)
     {};
     void initialise(HWND parent_hwnd_, int label_foreground_);
     void show(int x_, int y_);
     void hide();
 protected:
+    Brush list_bg;
     int min_w = 170, min_h = 185;
     HWND parent_hwnd = NULL;
     HWND wnd_title_cb = NULL;

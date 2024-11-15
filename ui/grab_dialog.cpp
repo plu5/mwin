@@ -83,6 +83,13 @@ LRESULT GrabDialog::proc(UINT msg, WPARAM wp, LPARAM lp) {
         return reinterpret_cast<LRESULT>(bg.h);
     }
 
+    case WM_CTLCOLORLISTBOX: {
+        auto hdc = reinterpret_cast<HDC>(wp);
+        SetBkMode(hdc, TRANSPARENT);
+        SetTextColor(hdc, label_foreground);
+        return reinterpret_cast<LRESULT>(list_bg.h);
+    }
+
     case WM_SIZE: {
         for (const auto& field : fields) {
             auto fgeom = calculate_field_geometry(field);
