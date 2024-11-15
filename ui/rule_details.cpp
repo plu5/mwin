@@ -1,5 +1,6 @@
 #include "ui/rule_details.h"
 #include <windowsx.h> // Edit_SetText, Edit_GetTextLength, Edit_GetText
+#include <uxtheme.h> // SetWindowTheme
 #include "plog/Log.h"
 #include "utility/win32_geometry.h" // get_size, get_rect
 #include "utility/win32_painting.h" // paint_text, paint_rect, ...
@@ -20,6 +21,7 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         (*this, hinst, &geom,
          WS_CHILDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
          parent_hwnd, false, true);
+    SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL);
 
     // NOTE(plu5): For correct scrollbar at launch, have to have this here;
     // doesn't work in WM_CREATE. And have to do this before children get

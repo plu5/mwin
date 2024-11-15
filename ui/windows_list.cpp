@@ -1,6 +1,7 @@
 #include "ui/windows_list.h"
 #include <commctrl.h> // WC_LISTBOX
 #include <windowsx.h> // ListBox macros
+#include <uxtheme.h> // SetWindowTheme
 #include <plog/Log.h>
 #include "utility/win32_casts.h" // hmenu_cast
 #include "utility/win32_geometry.h" // get_size, get_rect
@@ -23,6 +24,7 @@ void WindowsList::initialise
     geom.unpack(x, y, w, h);
 
     hwnd = create_listbox(x, y, w, h, -1, parent_hwnd, hinst);
+    SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(this));
     SetWindowSubclass(hwnd, s_proc, static_cast<UINT_PTR>(-1), 0);
 }
