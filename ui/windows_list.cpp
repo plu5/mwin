@@ -9,7 +9,8 @@
 
 HWND create_listbox
 (int x, int y, int w, int h, int id, HWND parent, HINSTANCE hinst,
- DWORD extra_flags=LBS_NOINTEGRALHEIGHT | WS_VSCROLL | LBS_NOTIFY) {
+ DWORD extra_flags=WS_BORDER | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | LBS_NOTIFY)
+{
     return CreateWindow
         (WC_LISTBOX, L"", WS_CHILD | WS_VISIBLE | extra_flags,
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
