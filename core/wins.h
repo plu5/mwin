@@ -15,7 +15,8 @@ struct OpenWindow {
 struct OpenWindows {
     std::vector<OpenWindow> list;
     std::set<std::string> exclusions = {
-        "Program Manager", "Microsoft Text Input Application"
+        "Program Manager", "Microsoft Text Input Application",
+        "Windows Input Experience"
     };
 
     bool should_exclude(const std::string& str);
