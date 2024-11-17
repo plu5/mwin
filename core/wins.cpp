@@ -17,13 +17,15 @@ std::string OpenWindows::get_path
 (HWND hwnd, bool* access_denied /* =nullptr */) {
     DWORD id;
     GetWindowThreadProcessId(hwnd, &id);
-    DWORD size = MAX_PATH;
-    auto path = new wchar_t[size];
     HANDLE hproc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, id);
     if (hproc) {
+        DWORD size = MAX_PATH;
+        auto path = new wchar_t[size];
         QueryFullProcessImageNameW(hproc, 0, path, &size);
         CloseHandle(hproc);
-        return wchar_to_string(path);
+        auto res = wchar_to_string(path);
+        delete[] path;
+        return res;
     } else {
         auto error = GetLastError();
         if (access_denied and error == 5) *access_denied = true;
