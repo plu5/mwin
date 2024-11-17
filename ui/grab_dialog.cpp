@@ -119,8 +119,13 @@ LRESULT GrabDialog::proc(UINT msg, WPARAM wp, LPARAM lp) {
         break;
 
     case WM_KEYDOWN:
-        if (wp == VK_RETURN) {
+        switch (wp) {
+        case VK_RETURN:
             confirm_if_selected();
+            break;
+        case VK_ESCAPE:
+            hide();
+            break;
         }
         break;
 
