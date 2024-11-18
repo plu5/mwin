@@ -86,8 +86,9 @@ LRESULT Select::proc
         selected_text = get_cb_text(hwnd, ComboBox_GetCurSel(hwnd));
         rc.left += 3;
         if (!selected_text.empty())
-            paint_text(dc2.h, selected_text, Theme::fg, &rc, nullptr,
-                   DT_EDITCONTROL | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+            paint_text
+                (dc2.h, selected_text, Theme::fg, &rc, get_window_font(hwnd),
+                 DT_EDITCONTROL | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
         // arrow
         int aw = size.h/2, aw2 = aw/2, ah = aw2,
