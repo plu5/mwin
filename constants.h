@@ -10,7 +10,6 @@ struct Theme {
     constexpr static const int bg = 0x00252526;
     constexpr static const int fg = 0x00DCDCDC;
     constexpr static const int edits_bg = 0x001E1E1E;
-    constexpr static const int edits_border = 0x00646464;
     constexpr static const int edits_line = 0x002B2B2B;
 };
 

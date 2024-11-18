@@ -75,7 +75,7 @@ LRESULT Select::proc
         auto size = get_size(hwnd);
 
         // border
-        paint_rect(dc2.h, Theme::edits_border, &size.rect);
+        paint_rect(dc2.h, Theme::edits_line, &size.rect);
 
         // bg
         auto rc = size.rect;
