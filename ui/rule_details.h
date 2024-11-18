@@ -134,6 +134,7 @@ protected:
     std::wstring selectors_label = L"SELECTORS";
     std::wstring geometry_label = L"GEOMETRY";
     std::wstring modifiers_label = L"MODIFIERS";
+    Font font;
     Font separator_font;
     void paint_modifier_tick_labels(HDC hdc);
     std::wstring left_tick_label = L"Apply";

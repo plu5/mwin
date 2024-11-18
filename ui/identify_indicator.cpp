@@ -67,8 +67,8 @@ void IdentifyIndicator::paint() {
 
     if (not big_font.initialised)
         big_font.initialise(hdc, big_font_face, big_font_size, true);
-    text_rect = get_centred_text_rect(hdc, text, &size.rect, &big_font);
-    paint_text(hdc, text.data(), Theme::fg, &text_rect, &big_font);
+    text_rect = get_centred_text_rect(hdc, text, &size.rect, big_font.h);
+    paint_text(hdc, text.data(), Theme::fg, &text_rect, big_font.h);
 
     EndPaint(hwnd, &ps);
 }

@@ -37,7 +37,7 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         if (field.edit) {
             field.edit->initialise
                 (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h,
-                 field.label, label_foreground, field.label_width);
+                 field.label, field.label_width);
         } else if (field.select) {
             field.select->initialise
                 (hwnd, hinst, fgeom.x, fgeom.y, fgeom.w, fgeom.h);
@@ -61,6 +61,11 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
          hwnd, hinst, true, WS_VISIBLE | BS_ICON, trigger_icon.h);
     
     populate_monitor_select();
+
+    auto hdc = GetDC(hwnd);
+    font.initialise(hdc, L"MS Dlg 2", 10);
+    ReleaseDC(hwnd, hdc);
+    set_window_font(hwnd, font.h);
 }
 
 void RuleDetails::show_grab_dialog() {
@@ -423,12 +428,12 @@ void RuleDetails::paint_section_header
 
     if (not separator_font.initialised) separator_font.from_current(hdc, true);
     text_rect.right = text_rect.left +
-        get_text_width(hdc, label, &separator_font);
+        get_text_width(hdc, label, separator_font.h);
 
     paint_rect(hdc, Theme::fg, &rect);
     paint_rect(hdc, Theme::bg, &text_rect);
 
-    paint_text(hdc, label, Theme::fg, &text_rect, &separator_font);
+    paint_text(hdc, label, Theme::fg, &text_rect, separator_font.h);
 }
 
 void RuleDetails::paint_modifier_tick_labels(HDC hdc) {

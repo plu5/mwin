@@ -94,11 +94,27 @@ struct Font {
     inline ~Font() {delete_if_initialised();}
 };
 
+inline HFONT get_window_font(HWND hwnd) {
+    return reinterpret_cast<HFONT>(SendMessage(hwnd, WM_GETFONT, 0, 0));
+}
+
+// Christopher Janzon https://stackoverflow.com/a/17075471/18396947
+inline bool CALLBACK set_window_font_callback(HWND hwnd, LPARAM lp) {
+    SendMessage(hwnd, WM_SETFONT, lp, true);
+    return true;
+}
+
+inline void set_window_font(HWND hwnd, HFONT font) {
+    EnumChildWindows
+        (hwnd, reinterpret_cast<WNDENUMPROC>(set_window_font_callback),
+         reinterpret_cast<LPARAM>(font));
+}
+
 inline void paint_text
 (HDC hdc, const std::wstring& text, COLORREF foreground, RECT* rect,
- Font* font=nullptr, int flags=0) {
+ HFONT font=NULL, int flags=0) {
     HFONT prev_fn = NULL;
-    if (font) prev_fn = static_cast<HFONT>(SelectObject(hdc, font->h));
+    if (font) prev_fn = static_cast<HFONT>(SelectObject(hdc, font));
     auto prev_bk = SetBkMode(hdc, TRANSPARENT);
     auto prev_cl = SetTextColor(hdc, foreground);
     DrawTextW(hdc, text.data(), static_cast<int>(text.size()), rect, flags);
@@ -108,9 +124,9 @@ inline void paint_text
 }
 
 inline RECT get_text_rect
-(HDC hdc, const std::wstring& text, Font* font=nullptr) {
+(HDC hdc, const std::wstring& text, HFONT font=NULL) {
     HFONT prev_fn = NULL;
-    if (font) prev_fn = static_cast<HFONT>(SelectObject(hdc, font->h));
+    if (font) prev_fn = static_cast<HFONT>(SelectObject(hdc, font));
     RECT rect {};
     DrawTextW(hdc, text.data(), static_cast<int>(text.size()), &rect,
               DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE);
@@ -119,19 +135,19 @@ inline RECT get_text_rect
 }
 
 inline int get_text_width
-(HDC hdc, const std::wstring& text, Font* font=nullptr) {
+(HDC hdc, const std::wstring& text, HFONT font=NULL) {
     auto rect = get_text_rect(hdc, text, font);
     return rect.right - rect.left;
 }
 
 inline int get_text_height
-(HDC hdc, const std::wstring& text, Font* font=nullptr) {
+(HDC hdc, const std::wstring& text, HFONT font=NULL) {
     auto rect = get_text_rect(hdc, text, font);
     return rect.bottom - rect.top;
 }
 
 inline RECT get_centred_text_rect
-(HDC hdc, const std::wstring& text, RECT* container, Font* font=nullptr,
+(HDC hdc, const std::wstring& text, RECT* container, HFONT font=NULL,
  bool horizontally=true, bool vertically=true, bool bottom=false,
  bool right=false) {
     auto rect = get_text_rect(hdc, text, font);

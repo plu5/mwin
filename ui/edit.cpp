@@ -12,7 +12,7 @@ HWND create_edit
  HWND parent, HINSTANCE hinst) {
     return CreateWindow
         (WC_EDIT, caption.data(),
-         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+         WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
          x, y, w, h, parent, hmenu_cast(id), hinst, NULL);
 }
 
@@ -30,8 +30,22 @@ void edit_del_sel(HWND hwnd, BOOL undoable=TRUE) {
     SNDMSG(hwnd, EM_REPLACESEL, undoable, reinterpret_cast<LPARAM>(L""));
 }
 
-LRESULT CALLBACK edit_proc
-(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
+LRESULT CALLBACK Edit::s_proc
+(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR data) {
+    if (msg == WM_NCDESTROY) {
+        RemoveWindowSubclass(hwnd, s_proc, uid);
+        return DefSubclassProc(hwnd, msg, wp, lp);
+    }
+    auto self = reinterpret_cast<Edit*>(data);
+    if (self) {
+        return self->proc(msg, wp, lp);
+    } else {
+        return DefSubclassProc(hwnd, msg, wp, lp);
+    }
+}
+
+LRESULT Edit::proc
+(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_CHAR:
         switch (wp) {
@@ -58,16 +72,30 @@ LRESULT CALLBACK edit_proc
         }
         break;
 
-    case WM_NCDESTROY:
-        RemoveWindowSubclass(hwnd, edit_proc, uid);
+    case WM_SIZE:
+        setup_paint_buffers();
         break;
+
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        hdc1 = BeginPaint(hwnd, &ps);
+        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.h), 0);
+        auto size = get_size(hwnd);
+        auto rect = size.rect;
+        // line under
+        rect.top = rect.bottom - bottom_line_h;
+        paint_rect(dc2.h, bottom_line_fg, &rect);
+        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
     }
     return DefSubclassProc(hwnd, msg, wp, lp);
 }
 
 void Edit::initialise
 (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
- const std::string& label_, int label_foreground_, int label_width_) {
+ const std::string& label_, int label_width_) {
     hinst = hinst_;
     parent = parent_;
     label = label_;
@@ -76,11 +104,12 @@ void Edit::initialise
     y = y_;
     w = w_;
     h = h_;
-    label_foreground = label_foreground_;
     label_width = label_width_;
     hwnd = create_edit(L"", x + label_width, y, w - label_width, h,
                        -1, parent, hinst);
-    SetWindowSubclass(hwnd, edit_proc, static_cast<UINT_PTR>(-1), 0);
+    SetWindowSubclass(hwnd, s_proc, static_cast<UINT_PTR>(-1),
+                      reinterpret_cast<DWORD_PTR>(this));
+    setup_paint_buffers();
 }
 
 std::string Edit::text() const {
@@ -103,12 +132,12 @@ void Edit::reposition(int x_, int y_) {
 void Edit::paint(HDC hdc) {
     auto rect = get_relative_rect(hwnd, parent);
     if (rect.top + (rect.bottom - rect.top) < 0) return; // not in view
+
+    // label
     rect.top += label_top_offset;
     rect.left = x;
     rect.right = x + label_width;
-    SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, label_foreground);
-    DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);
+    paint_text(hdc, wlabel, label_fg, &rect, get_window_font(hwnd));
 }
 
 void Edit::clear_and_disable() {
@@ -119,4 +148,13 @@ void Edit::clear_and_disable() {
 void Edit::populate(const std::string& text) {
     Edit_Enable(hwnd, true);
     Edit_SetText(hwnd, string_to_wstring(text).data());
+}
+
+void Edit::setup_paint_buffers() {
+    hdc1 = GetDC(hwnd);
+    auto size = get_size(hwnd);
+    bmp.initialise(hdc1, size.w, size.h);
+    dc2.initialise(hdc1, hwnd);
+    dc2.select_bitmap(bmp.h);
+    ReleaseDC(hwnd, hdc1);
 }
