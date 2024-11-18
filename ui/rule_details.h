@@ -95,10 +95,10 @@ protected:
          .label_width = 18, .horizontal_pos = 3},
         {.type = RuleFieldType::borderless, .tristate = &borderless_tristate,
          .label = "Borderless:",
-         .x = marg, .y = grab_btn_size + edit_height*9 + 13*marg},
+         .x = marg, .y = grab_btn_size + edit_height*9 + 14*marg},
         {.type = RuleFieldType::alwaysontop, .tristate = &alwaysontop_tristate,
          .label = "AlwaysOnTop:",
-         .x = marg, .y = grab_btn_size + edit_height*10 + 15*marg},
+         .x = marg, .y = grab_btn_size + edit_height*10 + 16*marg},
     };
     bool events_enabled = false;
     const Rule* current_rule = nullptr;
@@ -129,13 +129,11 @@ protected:
     void paint_section_header
     (HDC hdc, size_t vertical_order_position, const std::wstring& label);
     int label_foreground = Theme::fg;
-    int separator_height = 2;
-    int separator_label_left_offset = 20;
+    int separator_x = 0; // dynamic
     std::wstring selectors_label = L"SELECTORS";
     std::wstring geometry_label = L"GEOMETRY";
     std::wstring modifiers_label = L"MODIFIERS";
     Font font;
-    Font separator_font;
     void paint_modifier_tick_labels(HDC hdc);
     std::wstring left_tick_label = L"Apply";
     std::wstring mid_tick_label = L"As is";

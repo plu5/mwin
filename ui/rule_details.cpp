@@ -415,25 +415,20 @@ void RuleDetails::paint_section_header
     auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
     rect.top += move_down;
     rect.bottom += move_down;
-    rect.left = marg;
-    rect.right = get_size(hwnd).w - marg;
-    auto text_rect = rect;
-    text_rect.left += separator_label_left_offset;
+    rect.left = 0;
+    rect.right = get_size(hwnd).w;
 
+    // background
+    paint_rect(hdc, Theme::sep_bg, &rect);
+
+    // text
     TEXTMETRIC tm {};
     GetTextMetrics(hdc, &tm);
     auto text_height = tm.tmHeight + tm.tmExternalLeading;
-    rect.top += text_height/2;
-    rect.bottom = rect.top + separator_height;
-
-    if (not separator_font.initialised) separator_font.from_current(hdc, true);
-    text_rect.right = text_rect.left +
-        get_text_width(hdc, label, separator_font.h);
-
-    paint_rect(hdc, Theme::fg, &rect);
-    paint_rect(hdc, Theme::bg, &text_rect);
-
-    paint_text(hdc, label, Theme::fg, &text_rect, separator_font.h);
+    rect.top += (rect.bottom - rect.top)/2 - text_height/2;
+    if (not separator_x) separator_x = marg + last_edit.label_width;
+    rect.left = separator_x;
+    paint_text(hdc, label, Theme::sep_fg, &rect, font.h);
 }
 
 void RuleDetails::paint_modifier_tick_labels(HDC hdc) {

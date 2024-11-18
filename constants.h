@@ -11,6 +11,8 @@ struct Theme {
     constexpr static const int fg = 0x00DCDCDC;
     constexpr static const int edits_bg = 0x001E1E1E;
     constexpr static const int edits_line = 0x002B2B2B;
+    constexpr static const int sep_bg = 0x00151515;
+    constexpr static const int sep_fg = 0x00404040;
 };
 
 struct UM { // custom message ids
