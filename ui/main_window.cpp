@@ -37,6 +37,10 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
         notify(lp);
         break;
 
+    case UM::rule_deselected:
+        if (rules_list.no_rule_selected()) rule_details.clear_and_disable();
+        break;
+
     case UM::grabbed:
         rule_details.post_grab();
         break;
@@ -120,14 +124,8 @@ void MainWindow::notify(LPARAM lp) {
                 // selected rule change
                 if ((nml->uNewState & LVIS_SELECTED) and (nml->iItem != -1)) {
                     rule_details.populate(rules_list.rule_at(nml->iItem));
-                } else if (nml->uNewState == 0) { // deselected
-                    // Note(plu5): We end up here also when switching between
-                    // rules, which is not currently a problem as there is then
-                    // another message with the new selection state and
-                    // rule_details.populate gets called, but it may be
-                    // undesireable for this to be triggered between switches;
-                    // ideally should only be when no rule is selected
-                    rule_details.clear_and_disable();
+                } else if (nml->uNewState == 0) {
+                    PostMessage(hwnd, UM::rule_deselected, 0, 0);
                 }
             }
         }

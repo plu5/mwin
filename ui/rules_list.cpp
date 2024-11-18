@@ -202,3 +202,7 @@ void RulesList::modify_selected_rule_field(const RuleFieldChange& change) {
         ListView_SetItem(hwnd, &item);
     }
 }
+
+bool RulesList::no_rule_selected() const {
+    return selected_index() == -1;
+}

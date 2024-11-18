@@ -18,6 +18,7 @@ public:
     int selected_index() const;
     Rule& rule_at(int i);
     void select_rule(int index);
+    bool no_rule_selected() const;
 protected:
     HWND parent_hwnd = 0;
     HWND add_btn = 0;
