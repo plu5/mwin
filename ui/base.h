@@ -85,7 +85,7 @@ std::unique_ptr<T> create_window
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst));
     auto hwnd = create_window
-        (*instance.get(), hinst, geometry, flags, parent);
+        (*instance.get(), hinst, geometry, flags, parent, false);
     if (!hwnd) return nullptr;
     return instance;
 }

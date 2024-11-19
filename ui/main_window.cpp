@@ -133,26 +133,10 @@ void MainWindow::notify(LPARAM lp) {
     }
 }
 
-void MainWindow::parse_menu_selections(WORD id) {
-    switch (id) {
-    case IDM_ABOUT:
-        DialogBox
-            (hinst, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, s_about_proc);
-        break;
-    case IDM_EXIT:
-        finalise();
-        DestroyWindow(hwnd);
-        break;
-    }
-}
-
 void MainWindow::command(WPARAM wp, LPARAM lp) {
-    if (lp == 0 and HIWORD(wp) == 0) { // menu
-        parse_menu_selections(LOWORD(wp));
-    } else {
-        if (rules_list.selected_index() != -1) {
-            auto change = rule_details.command(wp, lp);
-            rules_list.modify_selected_rule_field(change);
-        }
+    if (not lp) return;
+    if (rules_list.selected_index() != -1) {
+        auto change = rule_details.command(wp, lp);
+        rules_list.modify_selected_rule_field(change);
     }
 }
