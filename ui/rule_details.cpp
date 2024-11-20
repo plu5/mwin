@@ -339,8 +339,10 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         break;
 
     case WM_HSCROLL:
-        if (lp) PostMessage(parent_hwnd, WM_COMMAND,
-                            MAKELONG(LOWORD(wp), msg), lp);
+        // tristate
+        if (lp) PostMessage
+                    (parent_hwnd, WM_COMMAND, MAKELONG(LOWORD(wp), msg), lp);
+        break;
 
     case WM_MOUSEWHEEL:
         vscroll_by_mousewheel(wp);
@@ -388,6 +390,7 @@ void RuleDetails::vscroll(WPARAM wp) {
         pos = scroll_y + scroll_delta_per_line;
     } else if (action == SB_LINEUP) {
         pos = scroll_y - scroll_delta_per_line;
+        if (pos < 0) pos = 0;
     } 
     if (pos == -1) return;
     adjust_scrollinfo(pos, false);
