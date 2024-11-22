@@ -119,8 +119,9 @@ namespace ws {  // window styles
     LONG border = WS_OVERLAPPEDWINDOW;
 }
 
-void set_hwnd_style(HWND hwnd, LONG style) {
-    SetWindowLongPtr(hwnd, GWL_STYLE, style);
+void modify_hwnd_style(HWND hwnd, LONG add, LONG remove=0) {
+    auto orig = GetWindowLongPtr(hwnd, GWL_STYLE);
+    SetWindowLongPtr(hwnd, GWL_STYLE, orig & ~remove | add);
 }
 
 bool style_flag_set(HWND hwnd, LONG flag) {
@@ -134,10 +135,10 @@ int OpenWindows::reposition
  int alwaysontop) {
     refresh();
     if (auto hwnd = get_matching_hwnd(title, path)) {
-        LONG* style = nullptr;
-        if (borderless == 0) style = &ws::borderless;
-        else if (borderless == 2) style = &ws::border;
-        if (style) set_hwnd_style(hwnd, ws::visible | *style);
+        if (borderless == 0)
+            modify_hwnd_style(hwnd, ws::borderless, ws::border);
+        else if (borderless == 2)
+            modify_hwnd_style(hwnd, ws::border, ws::borderless);
         // NOTE(plu5): The following is a workaround for when the window was
         //  borderless and now we are restoring the borders, which for some
         //  reason causes it to set to the wrong size unless I set pos before
