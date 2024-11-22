@@ -392,6 +392,7 @@ void RuleDetails::paint() {
         if (field.edit) field.edit->paint(dc2.h);
         if (field.tristate) field.tristate->paint(dc2.h);
     }
+    paint_section_header(dc2.h, 0, rule_details_label);
     paint_section_header(dc2.h, 3, selectors_label);
     paint_section_header(dc2.h, 5, geometry_label);
     paint_section_header(dc2.h, 8, modifiers_label);
@@ -409,6 +410,10 @@ void RuleDetails::paint_section_header
     auto move_down = (rect.bottom - rect.top) + last_edit.label_top_offset + marg;
     rect.top += move_down;
     rect.bottom += move_down;
+    if (not pos) {
+        rect.bottom = rect.bottom - rect.top;
+        rect.top = 0;
+    }
     rect.left = 0;
     rect.right = get_size(hwnd).w;
 

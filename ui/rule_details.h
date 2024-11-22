@@ -130,6 +130,7 @@ protected:
     (HDC hdc, size_t vertical_order_position, const std::wstring& label);
     int label_foreground = Theme::fg;
     int separator_x = 0; // dynamic
+    std::wstring rule_details_label = L"RULE DETAILS";
     std::wstring selectors_label = L"SELECTORS";
     std::wstring geometry_label = L"GEOMETRY";
     std::wstring modifiers_label = L"MODIFIERS";
