@@ -12,22 +12,38 @@ struct CompatDc {
     HDC h = NULL;
     HWND hwnd = NULL;
     HBITMAP old_bmp = NULL;
+    HDC old_bmp_dc = NULL;
     bool initialised = false;
-    bool restore_old_bmp = true;
-    inline CompatDc() {}
-    inline void initialise(HDC hdc, HWND hwnd_)
-    {h = CreateCompatibleDC(hdc); hwnd = hwnd_; initialised = true;}
-    inline CompatDc(HDC hdc, HWND hwnd_) {initialise(hdc, hwnd_);}
+    bool restore_old_bmp = false;
 
-    inline ~CompatDc() {
-        if (restore_old_bmp) SelectObject(h, old_bmp);
-        if (initialised) ReleaseDC(hwnd, h);
+    inline void initialise(HDC hdc, HWND hwnd_) {
+        delete_if_initialised();
+        h = CreateCompatibleDC(hdc);
+        hwnd = hwnd_;
+        initialised = true;
+    }
+
+    inline void delete_if_initialised() {
+        if (restore_old_bmp and old_bmp and old_bmp_dc) {
+            SelectObject(old_bmp_dc, old_bmp);
+            restore_old_bmp = false;
+            old_bmp = NULL;
+            old_bmp_dc = NULL;
+        }
+        // A DC obtained via GetDC should be released with ReleaseDC, but a DC
+        // created ourselves should be deleted, otherwise it will leak.
+        if (initialised) DeleteDC(h);
     }
 
     inline void select_bitmap(HBITMAP bmp) {
         old_bmp = static_cast<HBITMAP>(SelectObject(h, bmp));
+        old_bmp_dc = h;
         restore_old_bmp = true;
     }
+
+    inline CompatDc() {}
+    inline CompatDc(HDC hdc, HWND hwnd_) {initialise(hdc, hwnd_);}
+    inline ~CompatDc() {delete_if_initialised();}
 };
 
 struct CompatBitmap {
