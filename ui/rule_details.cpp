@@ -435,13 +435,13 @@ void RuleDetails::paint_modifier_tick_labels(HDC hdc) {
     rect.top -= modifier_tick_labels_y_offset;
 
     auto text_rect = rect;
-    paint_text(hdc, left_tick_label, Theme::fg, &text_rect);
+    paint_text(hdc, left_tick_label, Theme::fg, &text_rect, font.h);
 
     text_rect = get_centred_text_rect
-        (hdc, mid_tick_label, &rect, nullptr, true, false);
-    paint_text(hdc, mid_tick_label, Theme::fg, &text_rect);
+        (hdc, mid_tick_label, &rect, font.h, true, false);
+    paint_text(hdc, mid_tick_label, Theme::fg, &text_rect, font.h);
 
     text_rect = get_centred_text_rect
-        (hdc, right_tick_label, &rect, nullptr, false, false, false, true);
-    paint_text(hdc, right_tick_label, Theme::fg, &text_rect);
+        (hdc, right_tick_label, &rect, font.h, false, false, false, true);
+    paint_text(hdc, right_tick_label, Theme::fg, &text_rect, font.h);
 }

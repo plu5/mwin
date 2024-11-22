@@ -11,7 +11,7 @@ public:
     int label_top_offset = 7;
     void initialise
     (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
-     const std::string& label_, int label_foreground_=RGB(200, 200, 200),
+     const std::string& label_, int label_fg_=RGB(200, 200, 200),
      int label_width_=90, int bg_=RGB(0, 0, 0));
     int pos() const;
     void resize_width(int w_);
@@ -26,7 +26,7 @@ protected:
     HINSTANCE hinst = 0;
     std::string label;
     std::wstring wlabel;
-    int label_foreground = RGB(200, 200, 200), bg = RGB(0, 0, 0);
+    int label_fg = RGB(200, 200, 200), bg = RGB(0, 0, 0);
     bool disabled = false;
     BLENDFUNCTION bf {0};
     int tick_width = 1, tick_height = 8, tick_y_offset = 4;
@@ -35,5 +35,6 @@ protected:
     HDC hdc1 = NULL;
     CompatDc dc2;
     CompatBitmap bmp;
+    HFONT font = NULL;
     void setup_paint_buffers();
 };

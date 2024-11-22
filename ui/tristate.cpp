@@ -84,7 +84,7 @@ LRESULT Tristate::proc
             last_x = size.rect.right - (thumb_w + 2 + 1);
         for (int tick_x : {first_x, mid_x, last_x})
             draw_ticks_at(dc2.h, tick_x, tick_width, tick_height,
-                      tick_y_offset, size.rect.bottom, label_foreground);
+                      tick_y_offset, size.rect.bottom, label_fg);
 
         if (disabled) {
             paint_rect(hdc1, bg, &size.rect);
@@ -96,13 +96,17 @@ LRESULT Tristate::proc
         EndPaint(hwnd, &ps);
         return 1;
     }
+
+    case WM_SETFONT:
+        font = reinterpret_cast<HFONT>(wp);
+        break;
     }
     return DefSubclassProc(hwnd, msg, wp, lp);
 }
 
 void Tristate::initialise
 (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
- const std::string& label_, int label_foreground_, int label_width_, int bg_) {
+ const std::string& label_, int label_fg_, int label_width_, int bg_) {
     parent = parent_;
     hinst = hinst_;
     x = x_;
@@ -111,7 +115,7 @@ void Tristate::initialise
     h = h_;
     label = label_;
     wlabel = string_to_wstring(label);
-    label_foreground = label_foreground_;
+    label_fg = label_fg_;
     label_width = label_width_;
     bg = bg_;
 
@@ -141,9 +145,7 @@ void Tristate::paint(HDC hdc) {
     rect.top += label_top_offset;
     rect.left = x;
     rect.right = x + label_width;
-    SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, label_foreground);
-    DrawTextW(hdc, wlabel.data(), static_cast<int>(wlabel.size()), &rect, 0);
+    paint_text(hdc, wlabel, label_fg, &rect, font);
 }
 
 int Tristate::pos() const {
