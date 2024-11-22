@@ -27,7 +27,12 @@ LRESULT Window::proc(UINT msg, WPARAM wp, LPARAM lp) {
         paint();
         break;
 
-    case WM_CREATE:
+    case WM_CREATE: {
+        auto hdc = GetDC(hwnd);
+        font.initialise(hdc, font_face, 10);
+        ReleaseDC(hwnd, hdc);
+        set_window_font(hwnd, font.h);
+    } [[fallthrough]];
     case WM_SIZE:
         setup_paint_buffers();
         break;

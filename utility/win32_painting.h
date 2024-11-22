@@ -98,11 +98,12 @@ struct Font {
         initialise(logfont);
     }
 
-    inline void from_current(HDC hdc, bool italic=false) {
+    inline void from_current(HDC hdc, bool italic=false, bool bold=false) {
         HFONT current = static_cast<HFONT>(GetCurrentObject(hdc, OBJ_FONT));
         LOGFONT logfont {};
         GetObject(current, sizeof(LOGFONT), &logfont);
         if (italic) logfont.lfItalic = true;
+        if (bold) logfont.lfWeight = FW_BOLD;
         initialise(logfont);
     }
 
@@ -184,4 +185,35 @@ inline void paint_rect(HDC hdc, COLORREF foreground, RECT *rect) {
     auto prev_cl = SetBkColor(hdc, foreground);
     ExtTextOut(hdc, 0, 0, ETO_OPAQUE, rect, L"", 0, 0);
     SetBkColor(hdc, prev_cl);
+}
+
+// https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-rectangle
+inline void paint_gradient_rect
+(HDC hdc, POINT p1, POINT p2, COLORREF c1, COLORREF c2) {
+    // Create an array of TRIVERTEX structures that describe
+    // positional and color values for each vertex. For a rectangle,
+    // only two vertices need to be defined: upper-left and lower-right.
+    TRIVERTEX vertex[2] {};
+    vertex[0].x     = p1.x;
+    vertex[0].y     = p1.y;
+    vertex[0].Red   = MAKEWORD(0, GetRValue(c1));
+    vertex[0].Green = MAKEWORD(0, GetGValue(c1));
+    vertex[0].Blue  = MAKEWORD(0, GetBValue(c1));
+    vertex[0].Alpha = 0x0000;
+
+    vertex[1].x     = p2.x;
+    vertex[1].y     = p2.y;
+    vertex[1].Red   = MAKEWORD(0, GetRValue(c2));
+    vertex[1].Green = MAKEWORD(0, GetGValue(c2));
+    vertex[1].Blue  = MAKEWORD(0, GetBValue(c2));
+    vertex[1].Alpha = 0x0000;
+
+    // Create a GRADIENT_RECT structure that
+    // references the TRIVERTEX vertices.
+    GRADIENT_RECT gRect {};
+    gRect.UpperLeft  = 0;
+    gRect.LowerRight = 1;
+
+    // Draw a shaded rectangle.
+    GradientFill(hdc, vertex, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
 }

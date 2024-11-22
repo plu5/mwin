@@ -5,6 +5,7 @@
 #include <windowsx.h> // Edit_GetSel, Edit_SetSel
 #include "utility/win32_geometry.h" // get_size
 #include "constants.h" // ID::name
+#include "utility/win32_painting.h" // paint_rect
 
 LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
@@ -23,6 +24,7 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     case WM_SIZE:
         rules_list.adjust_size();
         rule_details.adjust_size();
+        trigger_section.adjust_size();
         break;
 
     case UM::post_init:
@@ -56,22 +58,6 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     return super::proc(msg, wp, lp);
 }
 
-INT_PTR CALLBACK MainWindow::s_about_proc
-(HWND hwnd, UINT msg, WPARAM wp, LPARAM) {
-    switch (msg) {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wp) == IDOK || LOWORD(wp) == IDCANCEL) {
-            EndDialog(hwnd, LOWORD(wp));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
-}
-
 void MainWindow::update_geometry() {
     const auto& g = config.window_geometry;
     int x = 0, y = 0, w = 400, h = 400, flags = 0;
@@ -96,7 +82,8 @@ void MainWindow::initialise() {
     update_geometry();
     rules_list.initialise(hwnd, hinst);
     rules_list.load(config.user_dir);
-    rule_details.initialise(hwnd, rules_list.height);
+    rule_details.initialise(hwnd, rules_list.height, trigger_section.height);
+    trigger_section.initialise(hwnd, hinst);
 }
 
 void MainWindow::post_init() {
@@ -138,5 +125,19 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
     if (rules_list.selected_index() != -1) {
         auto change = rule_details.command(wp, lp);
         rules_list.modify_selected_rule_field(change);
+        // TODO: refactor
+        if (HIWORD(wp) == BN_CLICKED and
+              reinterpret_cast<HWND>(lp) == trigger_section.trigger_btn.hwnd)
+            rule_details.trigger();
     }
+}
+
+void MainWindow::paint() {
+    // Trigger section border
+    auto rc = get_rect(hwnd);
+    rc.top = rc.bottom - trigger_section.height;
+    rc.bottom = rc.top + 1;
+    paint_rect(dc2.h, Theme::border, &rc);
+
+    super::paint();
 }

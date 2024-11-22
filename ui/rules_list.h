@@ -4,6 +4,7 @@
 #include <filesystem> // std::filesystem::path
 #include <string> // std::string, std::wstring
 #include "core/rules.h" // Rule, RulesModel
+#include "utility/win32_painting.h" // CompatDC, CompatBitmap
 
 class RulesList {
 public:
@@ -19,6 +20,8 @@ public:
     Rule& rule_at(int i);
     void select_rule(int index);
     bool no_rule_selected() const;
+    static LRESULT CALLBACK s_proc
+    (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR data);
 protected:
     HWND parent_hwnd = 0;
     HWND add_btn = 0;
@@ -27,10 +30,16 @@ protected:
     HINSTANCE hinst = 0;
     int btn_size = 25;
     RulesModel rules;
+    LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
     void repopulate();
     Rule* selected_rule();
     void add_rule(bool select=true);
     void add_rule(const Rule& rule, size_t i, bool select=false);
     void dup_rule();
     void del_rule();
+    // Painting & double-buffering
+    HDC hdc1 = NULL;
+    CompatDc dc2;
+    CompatBitmap bmp;
+    void setup_paint_buffers();
 };

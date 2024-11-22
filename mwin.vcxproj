@@ -156,6 +156,7 @@
     <ClInclude Include="ui\rules_list.h" />
     <ClInclude Include="ui\rule_details.h" />
     <ClInclude Include="ui\select.h" />
+    <ClInclude Include="ui\trigger_section.h" />
     <ClInclude Include="ui\tristate.h" />
     <ClInclude Include="ui\windows_list.h" />
     <ClInclude Include="utility\console_output_support.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="core\wins.cpp" />
     <ClCompile Include="mwin.cpp" />
     <ClCompile Include="ui\base.cpp" />
+    <ClCompile Include="ui\button.cpp" />
     <ClCompile Include="ui\edit.cpp" />
     <ClCompile Include="ui\grab_dialog.cpp" />
     <ClCompile Include="ui\identify_indicator.cpp" />
@@ -188,6 +190,7 @@
     <ClCompile Include="ui\rules_list.cpp" />
     <ClCompile Include="ui\rule_details.cpp" />
     <ClCompile Include="ui\select.cpp" />
+    <ClCompile Include="ui\trigger_section.cpp" />
     <ClCompile Include="ui\tristate.cpp" />
     <ClCompile Include="ui\windows_list.cpp" />
     <ClCompile Include="utility\console_output_support.cpp" />
@@ -208,6 +211,12 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\mwin.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\mwin.ico" />
+    <Image Include="res\picker.ico" />
+    <Image Include="res\play.ico" />
+    <Image Include="res\refresh.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

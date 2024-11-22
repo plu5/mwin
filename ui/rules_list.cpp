@@ -7,6 +7,7 @@
 #include "core/save.h" // load_rules, save_rules
 #include "utility/win32_geometry.h" // get_size
 #include "ui/button.h" // create_btn
+#include "constants.h" // Theme
 
 const std::wstring empty_rule_name = L"[no name]";
 
@@ -96,8 +97,30 @@ bool on_item(HWND hwnd, LPARAM lp) {
     return hti.iItem != -1;
 }
 
-LRESULT CALLBACK listview_proc
-(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR) {
+void RulesList::setup_paint_buffers() {
+    hdc1 = GetDC(hwnd);
+    auto size = get_size(hwnd);
+    bmp.initialise(hdc1, size.w, size.h);
+    dc2.initialise(hdc1, hwnd);
+    dc2.select_bitmap(bmp.h);
+    ReleaseDC(hwnd, hdc1);
+}
+
+LRESULT CALLBACK RulesList::s_proc
+(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR data) {
+    if (msg == WM_NCDESTROY) {
+        RemoveWindowSubclass(hwnd, s_proc, uid);
+        return DefSubclassProc(hwnd, msg, wp, lp);
+    }
+    auto self = reinterpret_cast<RulesList*>(data);
+    if (self) {
+        return self->proc(msg, wp, lp);
+    } else {
+        return DefSubclassProc(hwnd, msg, wp, lp);
+    }
+}
+
+LRESULT RulesList::proc(UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_KILLFOCUS: // suppress selection going grey
         return 0;
@@ -109,9 +132,23 @@ LRESULT CALLBACK listview_proc
         if (!on_item(hwnd, lp)) return 0; // suppress clicking off item
         break;
 
-    case WM_NCDESTROY:
-        RemoveWindowSubclass(hwnd, listview_proc, uid);
+    case WM_ERASEBKGND:
+        return 1;
+
+    case WM_SIZE:
+        setup_paint_buffers();
         break;
+
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        hdc1 = BeginPaint(hwnd, &ps);
+        auto size = get_size(hwnd);
+        paint_rect(dc2.h, Theme::edits_bg, &size.rect);
+        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.h), 0);
+        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
     }
     return DefSubclassProc(hwnd, msg, wp, lp);
 }
@@ -153,7 +190,8 @@ void RulesList::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
         (L"Rules list", btn_size, 0,
          get_size(parent_hwnd).w - btn_size, height,
          1, parent_hwnd, hinst);
-    SetWindowSubclass(hwnd, listview_proc, static_cast<UINT_PTR>(1), 0);
+    SetWindowSubclass(hwnd, s_proc, static_cast<UINT_PTR>(-1),
+                      reinterpret_cast<DWORD_PTR>(this));
     ListView_SetExtendedListViewStyle(hwnd, LVS_EX_ONECLICKACTIVATE);
     ListView_SetIconSpacing(hwnd, 80, 20);
     darkmode_listview(hwnd);
@@ -164,6 +202,8 @@ void RulesList::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
                          3, parent_hwnd, hinst);
     del_btn = create_btn(L"-", 0, btn_size * 2, btn_size, btn_size,
                          4, parent_hwnd, hinst);
+
+    setup_paint_buffers();
 
     SetFocus(hwnd);
 }

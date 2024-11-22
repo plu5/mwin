@@ -28,18 +28,20 @@ public:
     HWND hwnd = NULL;
     RuleDetails
     (std::wstring title, std::wstring class_name, HINSTANCE hinst)
-        : Window(title, class_name, hinst), grab_icon(hinst, IDI_PICKER),
-          trigger_icon(hinst, IDI_PLAY), edits_bg(Theme::edits_bg),
+        : Window(title, class_name, hinst, Theme::details_bg),
+          grab_icon(hinst, IDI_PICKER),
+          edits_bg(Theme::edits_bg),
           identify_indicator
           (L"Identify monitor", L"mwinIdentifyIndicator", hinst),
           grab_dialog(L"Grab dialog", L"mwinGrabDialog", hinst)
     {};
-    void initialise(HWND parent_hwnd_, int y_);
+    void initialise(HWND parent_hwnd_, int y_, int bottom_margin_);
     void adjust_size();
     void populate(const Rule& rule);
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
     void post_grab();
+    void trigger();
 protected:
     HWND parent_hwnd = NULL;
     Brush edits_bg;
@@ -54,8 +56,6 @@ protected:
     HWND grab_btn = NULL;
     int grab_btn_size = 21;
     Icon grab_icon;
-    HWND trigger_btn = NULL;
-    Icon trigger_icon;
     GrabDialog grab_dialog;
     Select monitor_select;
     HWND identify_monitor_btn = NULL;
@@ -104,7 +104,6 @@ protected:
     const Rule* current_rule = nullptr;
     void enable_events();
     void disable_events();
-    void trigger();
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     void show_grab_dialog();
     WndCoordinates get_coords();
@@ -116,6 +115,7 @@ protected:
     void change_monitor_select_if_coords_differ(const WndCoordinates& coords);
     // Positioning
     int y = 0;
+    int bottom_margin = 0;
     int useful_height = 500; // Full height for scrolling. Adjusts dynamically
     WndCoordinates calculate_field_geometry(RuleField field);
     // Scrolling logic
@@ -133,7 +133,6 @@ protected:
     std::wstring selectors_label = L"SELECTORS";
     std::wstring geometry_label = L"GEOMETRY";
     std::wstring modifiers_label = L"MODIFIERS";
-    Font font;
     void paint_modifier_tick_labels(HDC hdc);
     std::wstring left_tick_label = L"Apply";
     std::wstring mid_tick_label = L"As is";

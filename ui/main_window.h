@@ -4,6 +4,7 @@
 #include "core/config.h" // Config
 #include "ui/rules_list.h" // RulesList
 #include "ui/rule_details.h" // RuleDetails
+#include "ui/trigger_section.h" // TriggerSection
 #include <Windows.h> // HINSTANCE, HDC, HBITMAP, LRESULT, HWND, UINT, ...
 
 class MainWindow : public Window {
@@ -19,15 +20,14 @@ protected:
     Config config;
     RulesList rules_list;
     RuleDetails rule_details;
+    TriggerSection trigger_section;
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
-    static INT_PTR CALLBACK s_about_proc
-    (HWND hwnd, UINT msg, WPARAM wp, LPARAM);
     void initialise();
     void post_init();
     void finalise();
     void update_geometry();
     void save_geometry();
     void notify(LPARAM lp);
-    void parse_menu_selections(WORD id);
     void command(WPARAM wp, LPARAM lp);
+    void paint() override;
 };

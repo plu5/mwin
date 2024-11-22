@@ -11,16 +11,17 @@
 #include "ui/button.h" // create_btn
 #include "ui/tristate.h" // create_trackbar
 
-void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
+void RuleDetails::initialise(HWND parent_hwnd_, int y_, int bottom_margin_) {
     parent_hwnd = parent_hwnd_;
     y = y_;
+    bottom_margin = bottom_margin_;
 
     // Calculate useful height for scrolling
     WndCoordinates lgeom = calculate_field_geometry(fields.back());
     useful_height = lgeom.y + lgeom.h;
 
     auto size = get_size(parent_hwnd);
-    WndCoordinates geom = {0, y, size.w, size.h - y};
+    WndCoordinates geom = {0, y, size.w, size.h - y - bottom_margin};
     hwnd = create_window<RuleDetails>
         (*this, hinst, &geom,
          WS_CHILDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
@@ -55,17 +56,8 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
         (L"", btn_size, 0, grab_btn_size, grab_btn_size, -1,
          hwnd, hinst, true, WS_VISIBLE | BS_ICON, grab_icon.h);
     grab_dialog.initialise(parent_hwnd, label_foreground);
-
-    trigger_btn = create_btn
-        (L"", btn_size + grab_btn_size , 0, grab_btn_size, grab_btn_size, -1,
-         hwnd, hinst, true, WS_VISIBLE | BS_ICON, trigger_icon.h);
     
     populate_monitor_select();
-
-    auto hdc = GetDC(hwnd);
-    font.initialise(hdc, L"MS Dlg 2", 10);
-    ReleaseDC(hwnd, hdc);
-    set_window_font(hwnd, font.h);
 }
 
 void RuleDetails::show_grab_dialog() {
@@ -150,7 +142,8 @@ WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
 
 void RuleDetails::adjust_size() {
     auto size = get_size(parent_hwnd);
-    SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y, SWP_NOMOVE);
+    SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y - bottom_margin,
+                 SWP_NOMOVE);
     for (auto& field : fields) {
         auto fgeom = calculate_field_geometry(field);
         if (field.edit) {
@@ -266,8 +259,6 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
     } else if (HIWORD(wp) == BN_CLICKED) { // button
         if (hwnd_ == grab_btn) {
             show_grab_dialog();
-        } else if (hwnd_ == trigger_btn) {
-            trigger();
         } else if (hwnd_ == identify_monitor_btn) {
             show_identify_indicator();
         }

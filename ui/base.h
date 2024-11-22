@@ -3,7 +3,7 @@
 #include "constants.h" // ID::wname
 #include "res/resource.h" // IDI_MWIN, IDC_MWIN
 #include "core/coords.h" // WndCoordinates
-#include "utility/win32_painting.h" // CompatDc, CompatBitmap
+#include "utility/win32_painting.h" // CompatDc, CompatBitmap, Brush, Icon, ..
 #include <Windows.h>
 
 class Window {
@@ -14,19 +14,22 @@ public:
     HWND hwnd = NULL;
     Brush bg;
     Icon icon;
+    Font font;
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     ~Window() {DestroyWindow(hwnd);}
 protected:
     Window
-    (std::wstring title, std::wstring class_name, HINSTANCE hinst) :
-        title(title), class_name(class_name), hinst(hinst), bg(Theme::bg),
-        icon(hinst, IDI_MWIN) {};
+    (std::wstring title, std::wstring class_name, HINSTANCE hinst,
+     COLORREF bg=Theme::bg, std::wstring font_face=L"MS Dlg 2") :
+        title(title), class_name(class_name), hinst(hinst), bg(bg),
+        icon(hinst, IDI_MWIN), font_face(font_face) {};
     virtual LRESULT proc(UINT msg, WPARAM wp, LPARAM lp);
     // Painting & double-buffering
     HDC hdc1 = NULL;
     CompatDc dc2;
     CompatBitmap bmp;
+    std::wstring font_face;
     void setup_paint_buffers();
     virtual void paint_bg(HDC hdc);
     virtual void paint();
@@ -80,12 +83,14 @@ Last error: " + std::to_wstring(GetLastError());
 template<typename T>
 std::unique_ptr<T> create_window
 (std::wstring title, std::wstring class_name, HINSTANCE hinst,
- WndCoordinates* geometry=nullptr, int flags=WS_OVERLAPPEDWINDOW,
- HWND parent=nullptr) {
+ WndCoordinates* geometry=nullptr,
+ int flags=WS_OVERLAPPEDWINDOW,
+ HWND parent=nullptr, bool menu=false, bool redraw_on_resize=true) {
     auto instance = std::unique_ptr<T>
         (new T(title, class_name, hinst));
     auto hwnd = create_window
-        (*instance.get(), hinst, geometry, flags, parent, false);
+        (*instance.get(), hinst, geometry, flags, parent, menu,
+         redraw_on_resize);
     if (!hwnd) return nullptr;
     return instance;
 }
