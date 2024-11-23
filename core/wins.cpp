@@ -108,9 +108,11 @@ WndCoordinates add_shadow(HWND hwnd, WndCoordinates coords) {
     };
 }
 
-void set_hwnd_pos(HWND hwnd, WndCoordinates coords, HWND z=HWND_TOP) {
+void set_hwnd_pos(HWND hwnd, WndCoordinates coords, HWND z=HWND_TOP,
+                  UINT flags=0) {
+    // Without SWP_FRAMECHANGED I get artifacts
     SetWindowPos(hwnd, z, coords.x, coords.y, coords.w, coords.h,
-                 SWP_FRAMECHANGED);
+                 SWP_FRAMECHANGED | flags);
 }
 
 namespace ws {  // window styles
@@ -132,7 +134,7 @@ bool style_flag_set(HWND hwnd, LONG flag) {
 // for borderless and alwaysontop: 0 = apply, 1 = as is, 2 = unapply
 int OpenWindows::reposition
 (std::string title, std::string path, WndCoordinates coords, int borderless,
- int alwaysontop) {
+ int alwaysontop, UINT flags /* =0 */) {
     refresh();
     if (auto hwnd = get_matching_hwnd(title, path)) {
         if (borderless == 0)
@@ -143,12 +145,13 @@ int OpenWindows::reposition
         //  borderless and now we are restoring the borders, which for some
         //  reason causes it to set to the wrong size unless I set pos before
         //  calculating the shadow.
-        if (borderless == 2) set_hwnd_pos(hwnd, coords);
+        if (borderless == 2) set_hwnd_pos(hwnd, coords, HWND_TOP, flags);
 
         coords = add_shadow(hwnd, coords);
         set_hwnd_pos(hwnd, coords,
                      alwaysontop == 0 ? HWND_TOPMOST :
-                     (alwaysontop == 2 ? HWND_NOTOPMOST : HWND_TOP));
+                     (alwaysontop == 2 ? HWND_NOTOPMOST : HWND_TOP),
+                     flags);
         return 1;
     } else {
         return -1;  // not found

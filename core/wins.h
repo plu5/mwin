@@ -27,7 +27,7 @@ struct OpenWindows {
     int activate(std::string title, std::string path);
     WndCoordinates get_coordinates(int window_index);
     int reposition(std::string title, std::string path, WndCoordinates coords,
-                   int borderless, int alwaysontop);
+                   int borderless, int alwaysontop, UINT flags=0);
 
     static BOOL CALLBACK EnumWindows_callback(HWND hwnd, LPARAM lp) {
         auto t = reinterpret_cast<OpenWindows*>(lp); // this

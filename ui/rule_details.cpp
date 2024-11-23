@@ -79,6 +79,8 @@ void RuleDetails::post_grab() {
 }
 
 void RuleDetails::populate_monitor_select() {
+    monitor_select.minimum_index = -1;
+    monitor_select.add_option("As is");
     monitor_select.add_option("Custom coordinates");
     Monitors monitors;
     for (size_t i = 0; i < monitors.rects.size(); i++) {
@@ -90,15 +92,18 @@ void RuleDetails::populate_monitor_select() {
 }
 
 void RuleDetails::set_coords_by_selected_monitor(int selected) {
-    if (selected) {
+    if (selected == -1) disable_coords();
+    else if (selected) {
         WndCoordinates coords {};
-        coords.by_monitor(selected - 1);
+        coords.by_monitor(static_cast<size_t>(selected - 1));
         set_coords(coords);
+    } else {
+        if (current_rule) set_coords(current_rule->coords);
     }
 }
 
 void RuleDetails::set_identify_btn_state_by_selected_monitor(int selected) {
-    Button_Enable(identify_monitor_btn, selected ? true : false);
+    Button_Enable(identify_monitor_btn, selected > 0 ? true : false);
 }
 
 void RuleDetails::show_identify_indicator() {
@@ -113,9 +118,9 @@ void RuleDetails::show_identify_indicator() {
 void RuleDetails::change_monitor_select_if_coords_differ
 (const WndCoordinates& coords) {
     auto selected = monitor_select.selected();
-    if (not selected) return; // Custom coordinates
+    if (selected < 1) return; // Custom coordinates / as is
     WndCoordinates monitor_coords {};
-    monitor_coords.by_monitor(selected - 1);
+    monitor_coords.by_monitor(static_cast<size_t>(selected - 1));
     if (coords != monitor_coords) {
         monitor_select.select(0);
         set_identify_btn_state_by_selected_monitor(0);
@@ -162,7 +167,7 @@ void RuleDetails::adjust_size() {
 }
 
 void RuleDetails::enable_events() {
-    events_enabled = true;
+    PostMessage(hwnd, UM::enable_events, 0, 0);
 }
 
 void RuleDetails::disable_events() {
@@ -174,9 +179,12 @@ void RuleDetails::trigger() {
         LOG_INFO << "Unable to trigger unknown rule";
         return;
     }
+    UINT flags = 0;
+    // Geometry as is
+    if (current_rule->monitor == -1) flags = SWP_NOMOVE | SWP_NOSIZE;
     grab_dialog.windows_list.wins.reposition
         (current_rule->wnd_title, current_rule->wnd_exe, current_rule->coords,
-         current_rule->borderless, current_rule->alwaysontop);
+         current_rule->borderless, current_rule->alwaysontop, flags);
 }
 
 void RuleDetails::populate(const Rule& rule) {
@@ -198,6 +206,7 @@ void RuleDetails::populate(const Rule& rule) {
             field.tristate->populate(rule.get(field.type).num);
         }
     }
+    if (monitor_select.selected() == -1) disable_coords();
     enable_events();
 }
 
@@ -232,6 +241,16 @@ void RuleDetails::set_coords(const WndCoordinates& coords) {
         edit->populate(std::to_string(coords[i]));
         i += 1;
     }
+}
+
+void RuleDetails::disable_coords() {
+    disable_events();
+    auto i = 0;
+    for (auto* edit : {&x_edit, &y_edit, &w_edit, &h_edit}) {
+        edit->clear_and_disable();
+        i += 1;
+    }
+    enable_events();
 }
 
 RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
@@ -349,6 +368,10 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
 
     case WM_COMMAND:
         PostMessage(parent_hwnd, msg, wp, lp);
+        break;
+
+    case UM::enable_events:
+        events_enabled = true;
         break;
 
     case WM_CTLCOLORSTATIC:

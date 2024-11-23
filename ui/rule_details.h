@@ -12,7 +12,7 @@
 #include "ui/tristate.h" // Tristate
 #include "ui/trigger_section.h" // TriggerSection
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap, Icon
-#include "constants.h" // Theme
+#include "constants.h" // Theme, UM
 
 struct RuleField {
     RuleFieldType type = RuleFieldType::none;
@@ -111,6 +111,7 @@ protected:
     void show_grab_dialog();
     WndCoordinates get_coords();
     void set_coords(const WndCoordinates& coords);
+    void disable_coords();
     void populate_monitor_select();
     void set_coords_by_selected_monitor(int selected);
     void set_identify_btn_state_by_selected_monitor(int selected);

@@ -142,11 +142,11 @@ void Select::add_option(std::string s) {
 
 void Select::select(int i, bool enable) {
     if (enable) ComboBox_Enable(hwnd, true);
-    ComboBox_SetCurSel(hwnd, i);
+    ComboBox_SetCurSel(hwnd, i - minimum_index);
 }
 
 int Select::selected() const {
-    return ComboBox_GetCurSel(hwnd);
+    return ComboBox_GetCurSel(hwnd) + minimum_index;
 }
 
 void Select::resize_width(int w_) {

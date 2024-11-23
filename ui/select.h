@@ -9,6 +9,7 @@ class Select {
 public:
     HWND hwnd = NULL;
     int x = 0, y = 0, w = 0, h = 0;
+    int minimum_index = 0;
     Select() : edits_bg(Theme::edits_bg) {};
     void initialise
     (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_);
