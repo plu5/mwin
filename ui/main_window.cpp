@@ -24,7 +24,6 @@ LRESULT MainWindow::proc(UINT msg, WPARAM wp, LPARAM lp) {
     case WM_SIZE:
         rules_list.adjust_size();
         rule_details.adjust_size();
-        trigger_section.adjust_size();
         break;
 
     case UM::post_init:
@@ -82,8 +81,7 @@ void MainWindow::initialise() {
     update_geometry();
     rules_list.initialise(hwnd, hinst);
     rules_list.load(config.user_dir);
-    rule_details.initialise(hwnd, rules_list.height, trigger_section.height);
-    trigger_section.initialise(hwnd, hinst);
+    rule_details.initialise(hwnd, rules_list.height);
 }
 
 void MainWindow::post_init() {
@@ -125,19 +123,10 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
     if (rules_list.selected_index() != -1) {
         auto change = rule_details.command(wp, lp);
         rules_list.modify_selected_rule_field(change);
-        // TODO: refactor
-        if (HIWORD(wp) == BN_CLICKED and
-              reinterpret_cast<HWND>(lp) == trigger_section.trigger_btn.hwnd)
-            rule_details.trigger();
     }
 }
 
 void MainWindow::paint() {
-    // Trigger section border
-    auto rc = get_rect(hwnd);
-    rc.top = rc.bottom - trigger_section.height;
-    rc.bottom = rc.top + 1;
-    paint_rect(dc2.h, Theme::border, &rc);
-
+    rule_details.paint_parent(dc2.h);
     super::paint();
 }

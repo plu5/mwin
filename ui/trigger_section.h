@@ -10,6 +10,7 @@ public:
     Button trigger_btn;
     void initialise(HWND parent_hwnd_, HINSTANCE hinst_);
     void adjust_size();
+    void paint(HDC hdc);
 protected:
     int y = 0;
     HWND parent_hwnd = NULL;

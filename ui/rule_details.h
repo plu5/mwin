@@ -10,6 +10,7 @@
 #include "ui/grab_dialog.h" // GrabDialog
 #include "ui/identify_indicator.h" // IdentifyIndicator
 #include "ui/tristate.h" // Tristate
+#include "ui/trigger_section.h" // TriggerSection
 #include "utility/win32_painting.h" // CompatDc, CompatBitmap, Icon
 #include "constants.h" // Theme
 
@@ -35,13 +36,14 @@ public:
           (L"Identify monitor", L"mwinIdentifyIndicator", hinst),
           grab_dialog(L"Grab dialog", L"mwinGrabDialog", hinst)
     {};
-    void initialise(HWND parent_hwnd_, int y_, int bottom_margin_);
+    void initialise(HWND parent_hwnd_, int y_);
     void adjust_size();
     void populate(const Rule& rule);
     void clear_and_disable();
     RuleFieldChange command(WPARAM wp, LPARAM lp);
     void post_grab();
     void trigger();
+    void paint_parent(HDC hdc);
 protected:
     HWND parent_hwnd = NULL;
     Brush edits_bg;
@@ -63,6 +65,7 @@ protected:
     IdentifyIndicator identify_indicator;
     Tristate borderless_tristate;
     Tristate alwaysontop_tristate;
+    TriggerSection trigger_section;
     int marg = 5;
     int edit_height = 20;
     int btn_size = 25;

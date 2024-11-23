@@ -11,10 +11,12 @@
 #include "ui/button.h" // create_btn
 #include "ui/tristate.h" // create_trackbar
 
-void RuleDetails::initialise(HWND parent_hwnd_, int y_, int bottom_margin_) {
+void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
     parent_hwnd = parent_hwnd_;
     y = y_;
-    bottom_margin = bottom_margin_;
+    bottom_margin = trigger_section.height;
+
+    trigger_section.initialise(parent_hwnd, hinst);
 
     // Calculate useful height for scrolling
     WndCoordinates lgeom = calculate_field_geometry(fields.back());
@@ -144,6 +146,7 @@ void RuleDetails::adjust_size() {
     auto size = get_size(parent_hwnd);
     SetWindowPos(hwnd, NULL, 0, 0, size.w, size.h - y - bottom_margin,
                  SWP_NOMOVE);
+    trigger_section.adjust_size();
     for (auto& field : fields) {
         auto fgeom = calculate_field_geometry(field);
         if (field.edit) {
@@ -169,6 +172,7 @@ void RuleDetails::disable_events() {
 void RuleDetails::trigger() {
     if (!current_rule) {
         LOG_INFO << "Unable to trigger unknown rule";
+        return;
     }
     grab_dialog.windows_list.wins.reposition
         (current_rule->wnd_title, current_rule->wnd_exe, current_rule->coords,
@@ -261,6 +265,8 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
             show_grab_dialog();
         } else if (hwnd_ == identify_monitor_btn) {
             show_identify_indicator();
+        } else if (hwnd_ == trigger_section.trigger_btn.hwnd) {
+            trigger();
         }
     } else if (HIWORD(wp) == WM_HSCROLL) { // trackbar or scrollbar
         switch (LOWORD(wp)) {
@@ -444,4 +450,8 @@ void RuleDetails::paint_modifier_tick_labels(HDC hdc) {
     text_rect = get_centred_text_rect
         (hdc, right_tick_label, &rect, font.h, false, false, false, true);
     paint_text(hdc, right_tick_label, Theme::fg, &text_rect, font.h);
+}
+
+void RuleDetails::paint_parent(HDC hdc) {
+    trigger_section.paint(hdc);
 }

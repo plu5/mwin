@@ -4,7 +4,6 @@
 #include "core/config.h" // Config
 #include "ui/rules_list.h" // RulesList
 #include "ui/rule_details.h" // RuleDetails
-#include "ui/trigger_section.h" // TriggerSection
 #include <Windows.h> // HINSTANCE, HDC, HBITMAP, LRESULT, HWND, UINT, ...
 
 class MainWindow : public Window {
@@ -20,7 +19,6 @@ protected:
     Config config;
     RulesList rules_list;
     RuleDetails rule_details;
-    TriggerSection trigger_section;
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     void initialise();
     void post_init();
