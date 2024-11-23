@@ -5,6 +5,7 @@
 #include <string> // std::wstring
 #include "utility/win32_casts.h" // hmenu_cast
 #include "utility/win32_painting.h" // Font
+#include "res/resource.h" // IDF_TRIGGERFONT
 
 inline HWND create_btn
 (std::wstring caption, int x, int y, int w, int h, int id,
@@ -47,6 +48,7 @@ protected:
     Font font;
     std::wstring font_face = L"Be Vietnam";
     int font_size = 10;
+    int font_id  = IDF_TRIGGERFONT;
     COLORREF c_border = RGB(68, 73, 163);
     COLORREF c_border_pressed = RGB(198, 183, 242);
     COLORREF c_bg1 = RGB(68, 72, 163);

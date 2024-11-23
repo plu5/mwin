@@ -81,6 +81,7 @@ struct Icon {
 
 struct Font {
     HFONT h = NULL;
+    HANDLE res_h = NULL;
     bool initialised = false;
 
     inline void initialise(LOGFONT logfont) {
@@ -107,8 +108,31 @@ struct Font {
         initialise(logfont);
     }
 
-    inline void delete_if_initialised() {if (initialised) DeleteObject(h);}
-    inline ~Font() {delete_if_initialised();}
+    inline void from_resource
+    (HDC hdc, int id, const std::wstring& face, int pt, bool bold=false,
+     const std::wstring& fallback=L"MS Dlg 2") {
+        delete_if_initialised(true);
+        // Adrian Mole https://stackoverflow.com/a/58713364/18396947
+        HINSTANCE hinst = GetModuleHandle(nullptr);
+        HRSRC res = FindResource(hinst, MAKEINTRESOURCE(id), L"BINARY");
+        if (res) {
+            HGLOBAL font_mem = LoadResource(hinst, res);
+            if (font_mem != nullptr) {
+                void* font_data = LockResource(font_mem);
+                DWORD n_fonts = 0, len = SizeofResource(hinst, res);
+                res_h = AddFontMemResourceEx(font_data, len, nullptr, &n_fonts);
+            }
+        }
+        initialise(hdc, res_h ? face : fallback, pt, bold);
+    }
+
+    inline void delete_if_initialised(bool res=false) {
+        if (h) DeleteObject(h);
+        if (res and res_h) RemoveFontMemResourceEx(res_h);
+        initialised = false;
+    }
+
+    inline ~Font() {delete_if_initialised(true);}
 };
 
 inline HFONT get_window_font(HWND hwnd) {

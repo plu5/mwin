@@ -218,6 +218,9 @@
     <Image Include="res\play.ico" />
     <Image Include="res\refresh.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\BeVietnam-Bold.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

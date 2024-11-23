@@ -39,7 +39,7 @@ LRESULT CALLBACK Button::s_parent_proc
 
 void Button::paint(HDC hdc, RECT rc, UINT item_state) {
     if (not font.initialised)
-        font.initialise(hdc, font_face, font_size, true);
+        font.from_resource(hdc, font_id, font_face, font_size, true);
     auto pressed = item_state & ODS_SELECTED;
     paint_rect(hdc, pressed ? c_border_pressed : c_border, &rc);
     InflateRect(&rc, -1, -1);
@@ -69,7 +69,6 @@ void Button::initialise
     SetWindowSubclass(parent, s_parent_proc, n_instance,
                       reinterpret_cast<DWORD_PTR>(this));
     n_instance++;
-    
 }
 
 void Button::reposition(int x_, int y_) {
