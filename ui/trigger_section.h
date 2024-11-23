@@ -11,6 +11,12 @@ public:
     void initialise(HWND parent_hwnd_, HINSTANCE hinst_);
     void adjust_size();
     void paint(HDC hdc);
+    template<typename... T>
+    void update_state(bool selector_state, T... other_selector_states) {
+        if (selector_state or (... or other_selector_states))
+            trigger_btn.enable();
+        else trigger_btn.disable();
+    }
 protected:
     int y = 0;
     HWND parent_hwnd = NULL;

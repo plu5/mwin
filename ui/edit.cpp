@@ -116,6 +116,10 @@ std::string Edit::text() const {
     return get_window_text(hwnd);
 }
 
+bool Edit::empty() const {
+    return text().empty();
+}
+
 void Edit::resize_width(int w_) {
     w = w_;
     SetWindowPos(hwnd, NULL, 0, 0, w_ - label_width, get_size(hwnd, false).h,

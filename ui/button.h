@@ -35,6 +35,8 @@ public:
     (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
      const std::wstring& label_);
     void reposition(int x_, int y_);
+    void disable();
+    void enable();
     static LRESULT CALLBACK s_proc
     (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR uid, DWORD_PTR);
     static LRESULT CALLBACK s_parent_proc

@@ -41,10 +41,13 @@ void Button::paint(HDC hdc, RECT rc, UINT item_state) {
     if (not font.initialised)
         font.from_resource(hdc, font_id, font_face, font_size, true);
     auto pressed = item_state & ODS_SELECTED;
-    paint_rect(hdc, pressed ? c_border_pressed : c_border, &rc);
+    auto disabled = item_state & ODS_DISABLED;
+    paint_rect(hdc, disabled ? c_border_pressed :
+               pressed ? c_border_pressed : c_border, &rc);
     InflateRect(&rc, -1, -1);
-    paint_gradient_rect(hdc, {rc.left, rc.top}, {rc.right, rc.bottom},
-                        c_bg1, c_bg2);
+    if (disabled) paint_rect(hdc, c_border_pressed, &rc);
+    else paint_gradient_rect(hdc, {rc.left, rc.top}, {rc.right, rc.bottom},
+                             c_bg1, c_bg2);
     auto btn_text = get_window_wtext(hwnd);
     // TODO(plu5): Centre properly without needing hardcoded offset
     auto trc = get_centred_text_rect(hdc, btn_text, &rc, font.h);
@@ -75,4 +78,12 @@ void Button::reposition(int x_, int y_) {
     x = x_;
     y = y_;
     SetWindowPos(hwnd, NULL, x, y, 0, 0, SWP_NOSIZE);
+}
+
+void Button::disable() {
+    EnableWindow(hwnd, false);
+}
+
+void Button::enable() {
+    EnableWindow(hwnd, true);
 }

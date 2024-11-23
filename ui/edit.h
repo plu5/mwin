@@ -14,6 +14,7 @@ public:
     (HWND parent_, HINSTANCE hinst_, int x_, int y_, int w_, int h_,
      const std::string& label_, int label_width_=90);
     std::string text() const;
+    bool empty() const;
     void resize_width(int w_);
     void reposition(int x_, int y_);
     void paint(HDC hdc);

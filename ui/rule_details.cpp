@@ -248,6 +248,8 @@ RuleFieldChange RuleDetails::command(WPARAM wp, LPARAM lp) {
                     return {field.type, {.str = field.edit->text()}};
                 }
             }
+            trigger_section.update_state
+                (not wnd_title_edit.empty(), not wnd_exe_edit.empty());
         }
     } else if (HIWORD(wp) == CBN_SELCHANGE) { // combobox
         for (auto& field : fields) {
