@@ -207,6 +207,8 @@ void RuleDetails::populate(const Rule& rule) {
         }
     }
     if (monitor_select.selected() == -1) disable_coords();
+    trigger_section.update_state
+        (not wnd_title_edit.empty(), not wnd_exe_edit.empty());
     enable_events();
 }
 
