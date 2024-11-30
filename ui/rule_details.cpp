@@ -376,6 +376,10 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         events_enabled = true;
         break;
 
+    case WM_SETFONT:
+        trigger_section.set_font(reinterpret_cast<HFONT>(wp));
+        break;
+
     case WM_CTLCOLORSTATIC:
         return reinterpret_cast<LRESULT>(bg.h);
 

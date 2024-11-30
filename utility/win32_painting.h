@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <string> // std::wstring
 
 struct Brush {
     HBRUSH h = NULL;
