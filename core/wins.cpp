@@ -52,8 +52,14 @@ HWND OpenWindows::get_matching_hwnd
             if (path == w.path) return w.hwnd;
         }
     }
-    LOG_INFO << "Window with title '" << title << "' and path '" << path <<
-        "' not found";
+    if (title.size() and not path.size()) {
+        LOG_INFO << "Window with title '" << title << "' not found";
+    } else if (path.size() and not title.size()) {
+        LOG_INFO << "Window with path '" << path << "' not found";
+    } else {
+        LOG_INFO << "Window with title '" << title << "' and path '" << path <<
+            "' not found";
+    }
     return nullptr; // not found
 }
 
