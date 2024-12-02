@@ -1,4 +1,5 @@
 #include "core/wins.h"
+#include "constants.h" // ID
 #include "utility/string_conversion.h" // wchar_to_string
 #include "utility/win32_text.h" // get_window_text
 #include <plog/Log.h>
@@ -158,6 +159,15 @@ int OpenWindows::reposition
                      alwaysontop == 0 ? HWND_TOPMOST :
                      (alwaysontop == 2 ? HWND_NOTOPMOST : HWND_TOP),
                      flags);
+        auto err = GetLastError();
+        if (err == 5) {
+            LOG_INFO << "Failed to move window '" << title << "'. This can \
+happen if its process is running with elevated privileges and " << ID::name <<
+                " is not.";
+        } else if (err) {
+            LOG_INFO << "Failed to move window '" << title << "'. \
+Windows error code: " << err;
+        }
         return 1;
     } else {
         return -1;  // not found
