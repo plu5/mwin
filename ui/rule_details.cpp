@@ -127,7 +127,7 @@ void RuleDetails::change_monitor_select_if_coords_differ
     }
 }
 
-WndCoordinates RuleDetails::calculate_field_geometry(RuleField field) {
+WndCoordinates RuleDetails::calculate_field_geometry(const RuleField& field) {
     auto w = get_size(hwnd).w;
     auto i = field.horizontal_pos;
 

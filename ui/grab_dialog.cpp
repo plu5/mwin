@@ -61,7 +61,7 @@ inline int normalise(int value, int whole, int threshold=0) {
     return value < threshold ? whole + value : value;
 }
 
-WndCoordinates GrabDialog::calculate_field_geometry(GrabField field) {
+WndCoordinates GrabDialog::calculate_field_geometry(const GrabField& field) {
     update_wh();
     return {normalise(field.x, w), normalise(field.y, h),
         normalise(field.w, w, 1), normalise(field.h, h, 1)};

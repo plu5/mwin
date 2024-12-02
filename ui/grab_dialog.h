@@ -107,7 +107,7 @@ protected:
     };
     int label_foreground = 0;
     void update_wh();
-    WndCoordinates calculate_field_geometry(GrabField field);
+    WndCoordinates calculate_field_geometry(const GrabField& field);
     LRESULT proc(UINT msg, WPARAM wp, LPARAM lp) override;
     void paint();
     std::wstring info_label = L"Grab from window:";

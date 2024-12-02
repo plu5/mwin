@@ -121,7 +121,7 @@ protected:
     int y = 0;
     int bottom_margin = 0;
     int useful_height = 500; // Full height for scrolling. Adjusts dynamically
-    WndCoordinates calculate_field_geometry(RuleField field);
+    WndCoordinates calculate_field_geometry(const RuleField& field);
     // Scrolling logic
     int scroll_y = 0, scroll_delta_per_line = 30, scroll_accumulated_delta = 0,
         wheel_scroll_lines = 0;
