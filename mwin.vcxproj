@@ -157,6 +157,7 @@
     <ClInclude Include="ui\rule_details.h" />
     <ClInclude Include="ui\select.h" />
     <ClInclude Include="ui\status.h" />
+    <ClInclude Include="ui\tooltip.h" />
     <ClInclude Include="ui\trigger_section.h" />
     <ClInclude Include="ui\tristate.h" />
     <ClInclude Include="ui\windows_list.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="ui\rule_details.cpp" />
     <ClCompile Include="ui\select.cpp" />
     <ClCompile Include="ui\status.cpp" />
+    <ClCompile Include="ui\tooltip.cpp" />
     <ClCompile Include="ui\trigger_section.cpp" />
     <ClCompile Include="ui\tristate.cpp" />
     <ClCompile Include="ui\windows_list.cpp" />

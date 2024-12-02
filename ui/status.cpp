@@ -50,11 +50,13 @@ void Status::initialise(HWND parent_hwnd_, HINSTANCE hinst_) {
 
 void Status::adjust_size(RECT rect_) {
     rect = rect_;
+    tooltip.change_rect(rect);
 }
 
 void Status::set(const std::wstring& s) {
     current_message = s;
     InvalidateRect(parent_hwnd, &rect, false);
+    tooltip.initialise(parent_hwnd, current_message, rect, tooltip_width);
 }
 
 void Status::set_font(HFONT font_) {
@@ -62,6 +64,7 @@ void Status::set_font(HFONT font_) {
 }
 
 void Status::paint(HDC hdc) {
-    paint_text(hdc, current_message, Theme::fg, &rect, font,
-               DT_END_ELLIPSIS | DT_SINGLELINE | DT_VCENTER);
+    if (!current_message.empty())
+        paint_text(hdc, current_message, Theme::fg, &rect, font,
+                   DT_END_ELLIPSIS | DT_SINGLELINE | DT_VCENTER);
 }

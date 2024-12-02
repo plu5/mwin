@@ -2,6 +2,7 @@
 
 #include <Windows.h> // HWND, HINSTANCE, RECT, HFONT
 #include <string> // std::wstring
+#include "ui/tooltip.h" // Tooltip
 
 class Status {
 public:
@@ -13,7 +14,9 @@ public:
 protected:
     RECT rect {}; // dynamic
     HWND parent_hwnd = NULL;
+    Tooltip tooltip;
+    int tooltip_width = 500;
     HINSTANCE hinst = NULL;
-    HFONT font;
-    std::wstring current_message;
+    HFONT font = NULL;
+    std::wstring current_message = L"";
 };
