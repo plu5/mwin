@@ -167,12 +167,14 @@
     <ClInclude Include="utility\safe_resources.h" />
     <ClInclude Include="utility\string_concat.h" />
     <ClInclude Include="utility\string_conversion.h" />
+    <ClInclude Include="utility\string_formatting.h" />
     <ClInclude Include="utility\string_transformations.h" />
     <ClInclude Include="utility\uid.h" />
     <ClInclude Include="utility\vector_join.h" />
     <ClInclude Include="utility\win32_casts.h" />
     <ClInclude Include="utility\win32_geometry.h" />
     <ClInclude Include="utility\win32_painting.h" />
+    <ClInclude Include="utility\win32_text.h" />
     <ClInclude Include="utility\word_wrap.h" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +207,7 @@
     <ClCompile Include="utility\uid.cpp" />
     <ClCompile Include="utility\win32_casts.cpp" />
     <ClCompile Include="utility\win32_geometry.cpp" />
+    <ClCompile Include="utility\win32_painting.cpp" />
     <ClCompile Include="utility\word_wrap.cpp" />
   </ItemGroup>
   <ItemGroup>

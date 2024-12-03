@@ -79,13 +79,13 @@ LRESULT Edit::proc
     case WM_PAINT: {
         PAINTSTRUCT ps;
         hdc1 = BeginPaint(hwnd, &ps);
-        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.h), 0);
+        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.get()), 0);
         auto size = get_size(hwnd);
         auto rect = size.rect;
         // line under
         rect.top = rect.bottom - bottom_line_h;
-        paint_rect(dc2.h, bottom_line_fg, &rect);
-        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        paint_rect(dc2.get(), bottom_line_fg, &rect);
+        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.get(), 0, 0, SRCCOPY);
         EndPaint(hwnd, &ps);
         return 0;
     }
@@ -158,7 +158,7 @@ void Edit::setup_paint_buffers() {
     hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
+    dc2.initialise(hdc1);
+    dc2.select_bitmap(bmp.get());
     ReleaseDC(hwnd, hdc1);
 }

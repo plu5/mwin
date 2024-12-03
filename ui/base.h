@@ -47,12 +47,12 @@ HWND create_window
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hinst;
-    wcex.hIcon          = instance.icon.h;
+    wcex.hIcon          = instance.icon.get();
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = instance.bg.h;
+    wcex.hbrBackground  = instance.bg.get();
     wcex.lpszMenuName   = (parent or not menu) ? NULL : MAKEINTRESOURCEW(IDC_MWIN);
     wcex.lpszClassName  = instance.class_name.data();
-    wcex.hIconSm        = instance.icon.h;
+    wcex.hIconSm        = instance.icon.get();
 
     if (RegisterClassExW(&wcex) == 0) {
         std::wstring wstrMessage = L"create_window: RegisterClassExW failed.\n\

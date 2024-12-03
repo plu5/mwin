@@ -65,10 +65,10 @@ void IdentifyIndicator::paint() {
     text_rect.top -= closing_label_bottom_margin;
     paint_text(hdc, closing_label.data(), Theme::fg, &text_rect);
 
-    if (not big_font.initialised)
+    if (not big_font.initialised())
         big_font.initialise(hdc, big_font_face, big_font_size, true);
-    text_rect = get_centred_text_rect(hdc, text, &size.rect, big_font.h);
-    paint_text(hdc, text.data(), Theme::fg, &text_rect, big_font.h);
+    text_rect = get_centred_text_rect(hdc, text, &size.rect, big_font.get());
+    paint_text(hdc, text.data(), Theme::fg, &text_rect, big_font.get());
 
     EndPaint(hwnd, &ps);
 }

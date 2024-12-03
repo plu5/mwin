@@ -75,19 +75,19 @@ LRESULT Select::proc
         auto size = get_size(hwnd);
 
         // border
-        paint_rect(dc2.h, Theme::edits_line, &size.rect);
+        paint_rect(dc2.get(), Theme::edits_line, &size.rect);
 
         // bg
         auto rc = size.rect;
         InflateRect(&rc, -1, -1);
-        paint_rect(dc2.h, Theme::edits_bg, &rc);
+        paint_rect(dc2.get(), Theme::edits_bg, &rc);
 
         // text
         selected_text = get_cb_text(hwnd, ComboBox_GetCurSel(hwnd));
         rc.left += 3;
         if (!selected_text.empty())
-            paint_text
-                (dc2.h, selected_text, Theme::fg, &rc, get_window_font(hwnd),
+            paint_text(dc2.get(), selected_text, Theme::fg, &rc,
+                 get_window_font(hwnd),
                  DT_EDITCONTROL | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
         // arrow
@@ -95,9 +95,9 @@ LRESULT Select::proc
             ax = rc.right - static_cast<int>(aw*1.2),
             ay = rc.bottom - size.h/2 - ah/2 + 1;
         POINT arrow[4] = {ax, ay, ax+aw2, ay, ax+aw, ay, ax+aw2, ay+ah};
-        Polygon(dc2.h, arrow, 4);
+        Polygon(dc2.get(), arrow, 4);
 
-        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.get(), 0, 0, SRCCOPY);
         EndPaint(hwnd, &ps);
         return 0;
     }
@@ -109,8 +109,8 @@ void Select::setup_paint_buffers() {
     hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
+    dc2.initialise(hdc1);
+    dc2.select_bitmap(bmp.get());
     ReleaseDC(hwnd, hdc1);
 }
 

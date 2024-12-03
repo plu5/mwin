@@ -23,7 +23,7 @@ LRESULT Window::proc(UINT msg, WPARAM wp, LPARAM lp) {
     LRESULT lres;
     switch (msg) {
     case WM_PAINT:
-        paint_bg(dc2.h);
+        paint_bg(dc2.get());
         paint();
         break;
 
@@ -31,7 +31,7 @@ LRESULT Window::proc(UINT msg, WPARAM wp, LPARAM lp) {
         auto hdc = GetDC(hwnd);
         font.initialise(hdc, font_face, 10);
         ReleaseDC(hwnd, hdc);
-        set_window_font(hwnd, font.h);
+        set_window_font(hwnd, font.get());
     } [[fallthrough]];
     case WM_SIZE:
         setup_paint_buffers();
@@ -52,15 +52,15 @@ void Window::setup_paint_buffers() {
     hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
+    dc2.initialise(hdc1);
+    dc2.select_bitmap(bmp.get());
     ReleaseDC(hwnd, hdc1);
 }
 
 void Window::paint_bg(HDC hdc) {
     RECT rect = {};
     if (GetUpdateRect(hwnd, &rect, false)) {
-        FillRect(hdc, &rect, bg.h);
+        FillRect(hdc, &rect, bg.get());
     }
 }
 
@@ -68,6 +68,6 @@ void Window::paint() {
     PAINTSTRUCT ps;
     hdc1 = BeginPaint(hwnd, &ps);
     auto size = get_size(hwnd);
-    BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+    BitBlt(hdc1, 0, 0, size.w, size.h, dc2.get(), 0, 0, SRCCOPY);
     EndPaint(hwnd, &ps);
 }

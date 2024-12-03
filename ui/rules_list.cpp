@@ -101,8 +101,8 @@ void RulesList::setup_paint_buffers() {
     hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
+    dc2.initialise(hdc1);
+    dc2.select_bitmap(bmp.get());
     ReleaseDC(hwnd, hdc1);
 }
 
@@ -143,9 +143,9 @@ LRESULT RulesList::proc(UINT msg, WPARAM wp, LPARAM lp) {
         PAINTSTRUCT ps;
         hdc1 = BeginPaint(hwnd, &ps);
         auto size = get_size(hwnd);
-        paint_rect(dc2.h, Theme::edits_bg, &size.rect);
-        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.h), 0);
-        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+        paint_rect(dc2.get(), Theme::edits_bg, &size.rect);
+        DefSubclassProc(hwnd, msg, reinterpret_cast<WPARAM>(dc2.get()), 0);
+        BitBlt(hdc1, 0, 0, size.w, size.h, dc2.get(), 0, 0, SRCCOPY);
         EndPaint(hwnd, &ps);
         return 0;
     }

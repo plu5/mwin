@@ -56,7 +56,7 @@ void RuleDetails::initialise(HWND parent_hwnd_, int y_) {
 
     grab_btn = create_btn
         (L"", btn_size, 0, grab_btn_size, grab_btn_size, -1,
-         hwnd, hinst, true, WS_VISIBLE | BS_ICON, grab_icon.h);
+         hwnd, hinst, true, WS_VISIBLE | BS_ICON, grab_icon.get());
     grab_dialog.initialise(parent_hwnd, label_foreground);
     
     populate_monitor_select();
@@ -381,7 +381,7 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         break;
 
     case WM_CTLCOLORSTATIC:
-        return reinterpret_cast<LRESULT>(bg.h);
+        return reinterpret_cast<LRESULT>(bg.get());
 
     case WM_CTLCOLOREDIT:
     case WM_CTLCOLORLISTBOX:
@@ -389,7 +389,7 @@ LRESULT RuleDetails::proc(UINT msg, WPARAM wp, LPARAM lp) {
         SetBkMode(hdc, TRANSPARENT);
         SetTextColor(hdc, Theme::fg);
         SetBkColor(hdc, Theme::edits_bg);
-        return reinterpret_cast<LRESULT>(edits_bg.h);
+        return reinterpret_cast<LRESULT>(edits_bg.get());
     }
     return super::proc(msg, wp, lp);
 }
@@ -426,14 +426,14 @@ void RuleDetails::vscroll(WPARAM wp) {
 
 void RuleDetails::paint() {
     for (auto& field : fields) {
-        if (field.edit) field.edit->paint(dc2.h);
-        if (field.tristate) field.tristate->paint(dc2.h);
+        if (field.edit) field.edit->paint(dc2.get());
+        if (field.tristate) field.tristate->paint(dc2.get());
     }
-    paint_section_header(dc2.h, 0, rule_details_label);
-    paint_section_header(dc2.h, 3, selectors_label);
-    paint_section_header(dc2.h, 5, geometry_label);
-    paint_section_header(dc2.h, 8, modifiers_label);
-    paint_modifier_tick_labels(dc2.h);
+    paint_section_header(dc2.get(), 0, rule_details_label);
+    paint_section_header(dc2.get(), 3, selectors_label);
+    paint_section_header(dc2.get(), 5, geometry_label);
+    paint_section_header(dc2.get(), 8, modifiers_label);
+    paint_modifier_tick_labels(dc2.get());
 
     super::paint();
 }
@@ -464,7 +464,7 @@ void RuleDetails::paint_section_header
     rect.top += (rect.bottom - rect.top)/2 - text_height/2;
     if (not separator_x) separator_x = marg + last_edit.label_width;
     rect.left = separator_x;
-    paint_text(hdc, label, Theme::sep_fg, &rect, font.h);
+    paint_text(hdc, label, Theme::sep_fg, &rect, font.get());
 }
 
 void RuleDetails::paint_modifier_tick_labels(HDC hdc) {
@@ -472,15 +472,15 @@ void RuleDetails::paint_modifier_tick_labels(HDC hdc) {
     rect.top -= modifier_tick_labels_y_offset;
 
     auto text_rect = rect;
-    paint_text(hdc, left_tick_label, Theme::fg, &text_rect, font.h);
+    paint_text(hdc, left_tick_label, Theme::fg, &text_rect, font.get());
 
     text_rect = get_centred_text_rect
-        (hdc, mid_tick_label, &rect, font.h, true, false);
-    paint_text(hdc, mid_tick_label, Theme::fg, &text_rect, font.h);
+        (hdc, mid_tick_label, &rect, font.get(), true, false);
+    paint_text(hdc, mid_tick_label, Theme::fg, &text_rect, font.get());
 
     text_rect = get_centred_text_rect
-        (hdc, right_tick_label, &rect, font.h, false, false, false, true);
-    paint_text(hdc, right_tick_label, Theme::fg, &text_rect, font.h);
+        (hdc, right_tick_label, &rect, font.get(), false, false, false, true);
+    paint_text(hdc, right_tick_label, Theme::fg, &text_rect, font.get());
 }
 
 void RuleDetails::paint_parent(HDC hdc) {

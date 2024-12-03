@@ -39,8 +39,8 @@ void Tristate::setup_paint_buffers() {
     hdc1 = GetDC(hwnd);
     auto size = get_size(hwnd);
     bmp.initialise(hdc1, size.w, size.h);
-    dc2.initialise(hdc1, hwnd);
-    dc2.select_bitmap(bmp.h);
+    dc2.initialise(hdc1);
+    dc2.select_bitmap(bmp.get());
     ReleaseDC(hwnd, hdc1);
 }
 
@@ -71,7 +71,8 @@ LRESULT Tristate::proc
         auto size = get_size(hwnd);
 
         // Draw trackbar
-        DefSubclassProc(hwnd, WM_PAINT, reinterpret_cast<WPARAM>(dc2.h), 0);
+        DefSubclassProc
+        (hwnd, WM_PAINT, reinterpret_cast<WPARAM>(dc2.get()), 0);
 
         // Tick x locations calculation via Castorix
         // https://stackoverflow.com/a/56607237/18396947
@@ -83,15 +84,15 @@ LRESULT Tristate::proc
         int first_x = thumb_w + 2, mid_x = size.w / 2,
             last_x = size.rect.right - (thumb_w + 2 + 1);
         for (int tick_x : {first_x, mid_x, last_x})
-            draw_ticks_at(dc2.h, tick_x, tick_width, tick_height,
+            draw_ticks_at(dc2.get(), tick_x, tick_width, tick_height,
                       tick_y_offset, size.rect.bottom, label_fg);
 
         if (disabled) {
             paint_rect(hdc1, bg, &size.rect);
-            AlphaBlend(hdc1, 0, 0, size.w, size.h, dc2.h,
+            AlphaBlend(hdc1, 0, 0, size.w, size.h, dc2.get(),
                        0, 0, size.w, size.h, bf);
         } else {
-            BitBlt(hdc1, 0, 0, size.w, size.h, dc2.h, 0, 0, SRCCOPY);
+            BitBlt(hdc1, 0, 0, size.w, size.h, dc2.get(), 0, 0, SRCCOPY);
         }
         EndPaint(hwnd, &ps);
         return 1;

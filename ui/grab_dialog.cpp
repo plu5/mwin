@@ -27,7 +27,7 @@ void GrabDialog::initialise(HWND parent_hwnd_, int label_foreground_) {
             if (*field.btn == refresh_btn) {
                 *field.btn = create_btn
                     (field.label, fgeom.x, fgeom.y, fgeom.w, fgeom.h, -1, hwnd,
-                     hinst, true, WS_VISIBLE | BS_ICON, refresh_icon.h);
+                     hinst, true, WS_VISIBLE | BS_ICON, refresh_icon.get());
                 continue;
             }
             *field.btn = create_btn(field.label, fgeom.x, fgeom.y,
@@ -80,14 +80,14 @@ LRESULT GrabDialog::proc(UINT msg, WPARAM wp, LPARAM lp) {
         auto hdc = reinterpret_cast<HDC>(wp);
         SetBkMode(hdc, TRANSPARENT);
         SetTextColor(hdc, label_foreground);
-        return reinterpret_cast<LRESULT>(bg.h);
+        return reinterpret_cast<LRESULT>(bg.get());
     }
 
     case WM_CTLCOLORLISTBOX: {
         auto hdc = reinterpret_cast<HDC>(wp);
         SetBkMode(hdc, TRANSPARENT);
         SetTextColor(hdc, label_foreground);
-        return reinterpret_cast<LRESULT>(list_bg.h);
+        return reinterpret_cast<LRESULT>(list_bg.get());
     }
 
     case WM_SIZE: {
@@ -137,7 +137,7 @@ LRESULT GrabDialog::proc(UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 void GrabDialog::paint() {
-    paint_info_label(dc2.h);
+    paint_info_label(dc2.get());
 
     super::paint();
 }

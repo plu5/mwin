@@ -127,6 +127,6 @@ void MainWindow::command(WPARAM wp, LPARAM lp) {
 }
 
 void MainWindow::paint() {
-    rule_details.paint_parent(dc2.h);
+    rule_details.paint_parent(dc2.get());
     super::paint();
 }

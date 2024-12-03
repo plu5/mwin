@@ -38,7 +38,7 @@ LRESULT CALLBACK Button::s_parent_proc
 }
 
 void Button::paint(HDC hdc, RECT rc, UINT item_state) {
-    if (not font.initialised)
+    if (not font.initialised())
         font.from_resource(hdc, font_id, font_face, font_size, true);
     auto pressed = item_state & ODS_SELECTED;
     auto disabled = item_state & ODS_DISABLED;
@@ -50,10 +50,10 @@ void Button::paint(HDC hdc, RECT rc, UINT item_state) {
                              c_bg1, c_bg2);
     auto btn_text = get_window_wtext(hwnd);
     // TODO(plu5): Centre properly without needing hardcoded offset
-    auto trc = get_centred_text_rect(hdc, btn_text, &rc, font.h);
+    auto trc = get_centred_text_rect(hdc, btn_text, &rc, font.get());
     OffsetRect(&trc, 0, -2);
     if (pressed) OffsetRect(&trc, 1, 1);
-    paint_text(hdc, btn_text, c_fg, &trc, font.h);
+    paint_text(hdc, btn_text, c_fg, &trc, font.get());
 }
 
 void Button::initialise

@@ -2,66 +2,51 @@
 
 #include <Windows.h>
 #include <string> // std::wstring
+#include <memory> // unique_ptr
+#include <type_traits> // std::remove_pointer_t
+
+// https://github.com/namazso/OpenHashTab/blob/
+// e1511d92eac375eff91b11e9475a86d99b23fa64/OpenHashTab/utl.h#L161
+struct GdiObjectDeleter {
+    void operator()(HGDIOBJ hobj) const {
+        if (hobj) DeleteObject(hobj);
+    }
+};
 
 struct Brush {
-    HBRUSH h = NULL;
-    inline Brush(int clr) {h = CreateSolidBrush(clr);}
-    inline ~Brush() {DeleteObject(h);}
+    inline HBRUSH get() {return p.get();};
+    inline Brush(int clr) : p(CreateSolidBrush(clr)) {}
+private:
+    std::unique_ptr<std::remove_pointer_t<HBRUSH>, GdiObjectDeleter> p;
 };
 
 struct CompatDc {
+    inline HDC get() {return h;};
+    void initialise(HDC hdc);
+    void select_bitmap(HBITMAP bmp);
+    inline CompatDc() {};
+    CompatDc(HDC hdc);
+    ~CompatDc();
+    // Intentional lack of copy constructor, assignment, and move
+    // assignment. Compiler does not define them if there is a user-defined
+    // move constructor.
+    CompatDc(CompatDc&& other) noexcept;
+private:
     HDC h = NULL;
-    HWND hwnd = NULL;
     HBITMAP old_bmp = NULL;
     HDC old_bmp_dc = NULL;
-    bool initialised = false;
-    bool restore_old_bmp = false;
-
-    inline void initialise(HDC hdc, HWND hwnd_) {
-        delete_if_initialised();
-        h = CreateCompatibleDC(hdc);
-        hwnd = hwnd_;
-        initialised = true;
-    }
-
-    inline void delete_if_initialised() {
-        if (restore_old_bmp and old_bmp and old_bmp_dc) {
-            SelectObject(old_bmp_dc, old_bmp);
-            restore_old_bmp = false;
-            old_bmp = NULL;
-            old_bmp_dc = NULL;
-        }
-        // A DC obtained via GetDC should be released with ReleaseDC, but a DC
-        // created ourselves should be deleted, otherwise it will leak.
-        if (initialised) DeleteDC(h);
-    }
-
-    inline void select_bitmap(HBITMAP bmp) {
-        old_bmp = static_cast<HBITMAP>(SelectObject(h, bmp));
-        old_bmp_dc = h;
-        restore_old_bmp = true;
-    }
-
-    inline CompatDc() {}
-    inline CompatDc(HDC hdc, HWND hwnd_) {initialise(hdc, hwnd_);}
-    inline ~CompatDc() {delete_if_initialised();}
+    void delete_if_initialised();
+    void clear_state();
 };
 
 struct CompatBitmap {
-    HBITMAP h = NULL;
-    bool initialised = false;
-
-    inline void initialise(HDC hdc, int width, int height) {
-        delete_if_initialised();
-        h = CreateCompatibleBitmap(hdc, width, height);
-        initialised = true;
-    }
-
-    inline CompatBitmap() {}
-    inline CompatBitmap(HDC hdc, int width, int height)
-    {initialise(hdc, width, height);}
-    inline ~CompatBitmap() {delete_if_initialised();}
-    inline void delete_if_initialised() {if (initialised) DeleteObject(h);}
+    inline HBITMAP get() {return p.get();};
+    void initialise(HDC hdc, int width, int height);
+    inline CompatBitmap() {};
+    CompatBitmap(HDC hdc, int width, int height);
+private:
+    std::unique_ptr<std::remove_pointer_t<HBITMAP>, GdiObjectDeleter> p;
+    inline void delete_if_initialised() {if (get()) p.get_deleter()(get());}
 };
 
 // LoadIcon loads a "shared icon" which doesn't need to be deleted.
@@ -69,71 +54,35 @@ struct CompatBitmap {
 // retrieves a handle to the existing resource.
 // So there is not really a need to wrap it but I already did so nvm...
 struct Icon {
-    HICON h = NULL;
-
-    inline void initialise(HINSTANCE hinst, int id) {
-        h = LoadIcon(hinst, MAKEINTRESOURCE(id));
-    }
-
+    inline HICON get() {return h;};
+    void initialise(HINSTANCE hinst, int id);
     inline Icon() {}
-    inline Icon(HINSTANCE hinst, int id)
-    {initialise(hinst, id);}
+    inline Icon(HINSTANCE hinst, int id) {initialise(hinst, id);}
+private:
+    HICON h = NULL;
 };
 
 struct Font {
+    inline HFONT get() {return h;};
+    inline bool initialised() {return h;};
+    void initialise(LOGFONT logfont);
+    void initialise
+    (HDC hdc, const std::wstring& face, int pt, bool bold=false);
+    void from_current(HDC hdc, bool italic=false, bool bold=false);
+    void from_resource
+    (HDC hdc, int id, const std::wstring& face, int pt, bool bold=false,
+     const std::wstring& fallback=L"MS Dlg 2");
+    inline Font() {};
+    inline ~Font() {delete_if_initialised(true);}
+    // Intentional lack of copy constructor, assignment, and move
+    // assignment. Compiler does not define them if there is a user-defined
+    // move constructor.
+    Font(Font&& other) noexcept;
+private:
     HFONT h = NULL;
     HANDLE res_h = NULL;
-    bool initialised = false;
-
-    inline void initialise(LOGFONT logfont) {
-        delete_if_initialised();
-        h = CreateFontIndirect(&logfont);
-        initialised = true;
-    }
-
-    inline void initialise
-    (HDC hdc, const std::wstring& face, int pt, bool bold=false) {
-        LOGFONT logfont {};
-        wcscpy_s(logfont.lfFaceName, face.data());
-        logfont.lfHeight = -MulDiv(pt, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-        if (bold) logfont.lfWeight = FW_BOLD;
-        initialise(logfont);
-    }
-
-    inline void from_current(HDC hdc, bool italic=false, bool bold=false) {
-        HFONT current = static_cast<HFONT>(GetCurrentObject(hdc, OBJ_FONT));
-        LOGFONT logfont {};
-        GetObject(current, sizeof(LOGFONT), &logfont);
-        if (italic) logfont.lfItalic = true;
-        if (bold) logfont.lfWeight = FW_BOLD;
-        initialise(logfont);
-    }
-
-    inline void from_resource
-    (HDC hdc, int id, const std::wstring& face, int pt, bool bold=false,
-     const std::wstring& fallback=L"MS Dlg 2") {
-        delete_if_initialised(true);
-        // Adrian Mole https://stackoverflow.com/a/58713364/18396947
-        HINSTANCE hinst = GetModuleHandle(nullptr);
-        HRSRC res = FindResource(hinst, MAKEINTRESOURCE(id), L"BINARY");
-        if (res) {
-            HGLOBAL font_mem = LoadResource(hinst, res);
-            if (font_mem != nullptr) {
-                void* font_data = LockResource(font_mem);
-                DWORD n_fonts = 0, len = SizeofResource(hinst, res);
-                res_h = AddFontMemResourceEx(font_data, len, nullptr, &n_fonts);
-            }
-        }
-        initialise(hdc, res_h ? face : fallback, pt, bold);
-    }
-
-    inline void delete_if_initialised(bool res=false) {
-        if (h) DeleteObject(h);
-        if (res and res_h) RemoveFontMemResourceEx(res_h);
-        initialised = false;
-    }
-
-    inline ~Font() {delete_if_initialised(true);}
+    void delete_if_initialised(bool res=false);
+    void clear_state();
 };
 
 inline HFONT get_window_font(HWND hwnd) {
