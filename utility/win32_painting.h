@@ -7,6 +7,11 @@ struct Brush {
     HBRUSH h = NULL;
     inline Brush(int clr) {h = CreateSolidBrush(clr);}
     inline ~Brush() {DeleteObject(h);}
+    // noncopyable
+    Brush(const Brush&) = delete;
+    Brush& operator=(const Brush&) = delete;
+    // movable
+    Brush(Brush&&) = default;
 };
 
 struct CompatDc {
@@ -45,6 +50,11 @@ struct CompatDc {
     inline CompatDc() {}
     inline CompatDc(HDC hdc, HWND hwnd_) {initialise(hdc, hwnd_);}
     inline ~CompatDc() {delete_if_initialised();}
+    // noncopyable
+    CompatDc(const CompatDc&) = delete;
+    CompatDc& operator=(const CompatDc&) = delete;
+    // movable
+    CompatDc(CompatDc&&) = default;
 };
 
 struct CompatBitmap {
@@ -62,6 +72,11 @@ struct CompatBitmap {
     {initialise(hdc, width, height);}
     inline ~CompatBitmap() {delete_if_initialised();}
     inline void delete_if_initialised() {if (initialised) DeleteObject(h);}
+    // noncopyable
+    CompatBitmap(const CompatBitmap&) = delete;
+    CompatBitmap& operator=(const CompatBitmap&) = delete;
+    // movable
+    CompatBitmap(CompatBitmap&&) = default;
 };
 
 // LoadIcon loads a "shared icon" which doesn't need to be deleted.
@@ -133,7 +148,13 @@ struct Font {
         initialised = false;
     }
 
+    inline Font() {};
     inline ~Font() {delete_if_initialised(true);}
+    // noncopyable
+    Font(const Font&) = delete;
+    Font& operator=(const Font&) = delete;
+    // movable
+    Font(Font&&) = default;
 };
 
 inline HFONT get_window_font(HWND hwnd) {

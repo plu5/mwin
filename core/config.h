@@ -10,6 +10,12 @@ struct Config {
     Config();
     void load();
     void save();
+    // noncopyable
+    Config(const Config&) = delete;
+    Config& operator=(const Config&) = delete;
+    // movable
+    Config(Config&&) = default;
+    Config& operator=(Config&&) = default;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT\

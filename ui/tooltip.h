@@ -14,11 +14,15 @@ public:
     ~Tooltip();
     void set_max_width(int max_width);
     void change_rect(const RECT& rect);
+    // noncopyable
+    Tooltip(const Tooltip&) = delete;
+    Tooltip& operator=(const Tooltip&) = delete;
+    // movable
+    Tooltip(Tooltip&&) = default;
+    Tooltip& operator=(Tooltip&&) = default;
 private:
     bool initialised = false;
     HWND hwnd = NULL;
     std::wstring text = L"";
     TTTOOLINFO info {};
-    Tooltip(const Tooltip&) = delete;
-    Tooltip& operator=(const Tooltip&) = delete;
 };
