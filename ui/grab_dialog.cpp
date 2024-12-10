@@ -1,7 +1,7 @@
 #include "ui/grab_dialog.h"
 #include "ui/button.h" // create_cb, create_btn
 #include "utility/win32_geometry.h" // get_size, get_relative_rect
-#include "utility/win32_painting.h" // paint_text
+#include "utility/win32_painting.h" // get_window_font, paint_text
 #include "constants.h" // UM::grabbed message id
 #include <windowsx.h> // Button_GetCheck
 
@@ -34,6 +34,8 @@ void GrabDialog::initialise(HWND parent_hwnd_, int label_foreground_) {
                                     fgeom.w, fgeom.h, -1, hwnd, hinst);
         }
     }
+
+    set_window_font(hwnd, font.get());
 }
 
 void GrabDialog::show(int x_, int y_) {
